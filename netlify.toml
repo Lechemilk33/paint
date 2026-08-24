@@ -1,0 +1,15 @@
+# Netlify build. This repo root is the app, so there is no base directory.
+[build]
+  command = "npm run build"
+  publish = "out"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# The storefront lives at /store; send the bare domain there with a real 302.
+# (app/page.tsx also carries a meta-refresh fallback for other static hosts.)
+[[redirects]]
+  from = "/"
+  to = "/store/"
+  status = 302
+  force = true

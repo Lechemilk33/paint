@@ -1,0 +1,400 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  /* ---- Light theme: cool-tinted neutrals + cobalt accent ---- */
+  --background: oklch(0.985 0.002 260);
+  --foreground: oklch(0.215 0.012 260);
+
+  --card: oklch(1 0 0);
+  --card-foreground: var(--foreground);
+  --popover: oklch(1 0 0);
+  --popover-foreground: var(--foreground);
+
+  --primary: oklch(0.546 0.19 262);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.967 0.003 260);
+  --secondary-foreground: var(--foreground);
+  --muted: oklch(0.967 0.003 260);
+  --muted-foreground: oklch(0.552 0.014 260);
+  --accent: oklch(0.955 0.005 260);
+  --accent-foreground: var(--foreground);
+
+  --destructive: oklch(0.552 0.2 26);
+  --destructive-foreground: oklch(0.99 0 0);
+
+  --border: oklch(0.922 0.004 260);
+  --input: oklch(0.86 0.006 260);
+  --ring: oklch(0.546 0.19 262);
+
+  --radius: 0.5rem;
+
+  /* ---- CRM extensions ---- */
+  --foreground-secondary: oklch(0.44 0.014 260);
+  --primary-subtle: oklch(0.955 0.02 262);
+  --success: oklch(0.577 0.14 152);
+  --success-subtle: oklch(0.962 0.025 152);
+  --warning: oklch(0.666 0.14 65);
+  --warning-subtle: oklch(0.973 0.028 80);
+  --destructive-subtle: oklch(0.965 0.02 20);
+
+  /* ---- Task label palette ---- */
+  /* User-owned organizing colors. Each is a paired (solid, subtle) swatch: the
+     solid reads as chip text / the color dot, the subtle is the chip fill - the
+     same text-on-subtle pattern as success/warning. Tuned for AA contrast on the
+     subtle fill in this theme; the .dark block re-tunes both for dark surfaces. */
+  --label-slate: oklch(0.5 0.02 260);
+  --label-slate-subtle: oklch(0.965 0.004 260);
+  --label-red: oklch(0.565 0.19 26);
+  --label-red-subtle: oklch(0.965 0.02 20);
+  --label-orange: oklch(0.58 0.16 48);
+  --label-orange-subtle: oklch(0.967 0.03 55);
+  --label-amber: oklch(0.6 0.13 78);
+  --label-amber-subtle: oklch(0.971 0.032 85);
+  --label-green: oklch(0.555 0.14 152);
+  --label-green-subtle: oklch(0.962 0.025 152);
+  --label-teal: oklch(0.565 0.1 195);
+  --label-teal-subtle: oklch(0.963 0.025 195);
+  --label-blue: oklch(0.545 0.17 250);
+  --label-blue-subtle: oklch(0.96 0.03 255);
+  --label-indigo: oklch(0.53 0.18 278);
+  --label-indigo-subtle: oklch(0.961 0.03 278);
+  --label-violet: oklch(0.545 0.19 305);
+  --label-violet-subtle: oklch(0.964 0.028 308);
+  --label-pink: oklch(0.575 0.19 352);
+  --label-pink-subtle: oklch(0.965 0.025 350);
+}
+
+.dark {
+  --background: oklch(0.165 0.008 260);
+  --foreground: oklch(0.93 0.005 260);
+
+  --card: oklch(0.205 0.009 260);
+  --card-foreground: var(--foreground);
+  --popover: oklch(0.245 0.01 260);
+  --popover-foreground: var(--foreground);
+
+  --primary: oklch(0.64 0.17 262);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.26 0.01 260);
+  --secondary-foreground: var(--foreground);
+  --muted: oklch(0.145 0.008 260);
+  --muted-foreground: oklch(0.64 0.012 260);
+  --accent: oklch(0.27 0.01 260);
+  --accent-foreground: var(--foreground);
+
+  --destructive: oklch(0.66 0.18 26);
+  --destructive-foreground: oklch(0.99 0 0);
+
+  --border: oklch(0.28 0.01 260);
+  --input: oklch(0.34 0.012 260);
+  --ring: oklch(0.64 0.17 262);
+
+  --foreground-secondary: oklch(0.76 0.01 260);
+  --primary-subtle: oklch(0.26 0.05 262);
+  --success: oklch(0.68 0.13 152);
+  --success-subtle: oklch(0.24 0.035 152);
+  --warning: oklch(0.74 0.13 70);
+  --warning-subtle: oklch(0.25 0.035 80);
+  --destructive-subtle: oklch(0.245 0.04 22);
+
+  /* ---- Task label palette (dark) ---- */
+  /* Brighter solids for legibility on dark surfaces; deeper, low-L subtle fills. */
+  --label-slate: oklch(0.72 0.02 260);
+  --label-slate-subtle: oklch(0.28 0.008 260);
+  --label-red: oklch(0.71 0.17 26);
+  --label-red-subtle: oklch(0.27 0.05 22);
+  --label-orange: oklch(0.75 0.14 52);
+  --label-orange-subtle: oklch(0.28 0.05 48);
+  --label-amber: oklch(0.8 0.13 82);
+  --label-amber-subtle: oklch(0.28 0.045 82);
+  --label-green: oklch(0.72 0.13 152);
+  --label-green-subtle: oklch(0.26 0.04 152);
+  --label-teal: oklch(0.74 0.1 195);
+  --label-teal-subtle: oklch(0.26 0.038 195);
+  --label-blue: oklch(0.72 0.15 250);
+  --label-blue-subtle: oklch(0.28 0.055 255);
+  --label-indigo: oklch(0.72 0.15 278);
+  --label-indigo-subtle: oklch(0.29 0.055 278);
+  --label-violet: oklch(0.73 0.16 305);
+  --label-violet-subtle: oklch(0.29 0.05 308);
+  --label-pink: oklch(0.74 0.16 352);
+  --label-pink-subtle: oklch(0.29 0.055 350);
+}
+
+/* ---- Storefront scope ---- */
+/* The paintings storefront is a public surface with its own palette, so it
+   re-tunes the semantic tokens for its subtree exactly the way `.dark` does:
+   restyle once here, and every shadcn primitive inside follows. The palette is
+   pulled off the canvases themselves - abyssal blue ground, screaming magenta,
+   electric cyan, acid green, black contour. Nothing outside a `.storefront`
+   subtree is affected, which is why the neon swatches are declared only here.
+   Radix portals mount on <body>, outside this subtree, so any portalled
+   surface (the cart sheet) re-applies the class on its content. */
+.storefront {
+  --background: oklch(0.145 0.075 268);
+  --foreground: oklch(0.97 0.02 205);
+
+  --card: oklch(0.205 0.085 268);
+  --card-foreground: var(--foreground);
+  --popover: oklch(0.185 0.08 268);
+  --popover-foreground: var(--foreground);
+
+  /* Screaming magenta reads as the action color; the deep ink sits on top of it
+     because dark-on-neon is both the poster idiom and the higher-contrast pair. */
+  --primary: oklch(0.68 0.28 345);
+  --primary-foreground: oklch(0.14 0.05 275);
+  --secondary: oklch(0.26 0.09 268);
+  --secondary-foreground: var(--foreground);
+  --muted: oklch(0.205 0.075 268);
+  --muted-foreground: oklch(0.76 0.05 210);
+  --accent: oklch(0.28 0.1 268);
+  --accent-foreground: var(--foreground);
+
+  --destructive: oklch(0.68 0.22 25);
+  --destructive-foreground: oklch(0.14 0.05 275);
+
+  --border: oklch(0.31 0.09 268);
+  --input: oklch(0.38 0.1 268);
+  --ring: oklch(0.82 0.16 198);
+
+  --radius: 0.25rem;
+
+  --foreground-secondary: oklch(0.84 0.035 210);
+  --primary-subtle: oklch(0.28 0.12 340);
+  --success: oklch(0.86 0.21 130);
+  --success-subtle: oklch(0.26 0.09 140);
+  --warning: oklch(0.85 0.17 85);
+  --warning-subtle: oklch(0.27 0.08 80);
+  --destructive-subtle: oklch(0.27 0.09 20);
+
+  /* ---- Canvas palette ---- */
+  /* The five hues the paintings are actually built from. Used for accents,
+     glows, and the spike motifs - never as body-text color on the ground. */
+  --voltage: oklch(0.82 0.16 198); /* cyan spikes and contour highlights */
+  --acid: oklch(0.9 0.23 128); /* chartreuse, the acid-grin ground */
+  --magenta: oklch(0.68 0.28 345); /* the puffer and rat bodies */
+  --ultra: oklch(0.52 0.26 265); /* ultramarine, the deep water */
+  --ink: oklch(0.14 0.05 275); /* the black contour every form is drawn in */
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-foreground-secondary: var(--foreground-secondary);
+  --color-primary-subtle: var(--primary-subtle);
+  --color-success: var(--success);
+  --color-success-subtle: var(--success-subtle);
+  --color-warning: var(--warning);
+  --color-warning-subtle: var(--warning-subtle);
+  --color-destructive-subtle: var(--destructive-subtle);
+
+  /* Task label palette - solid + subtle per swatch, so bg-label-blue-subtle /
+     text-label-blue / bg-label-blue (the dot) all resolve as utilities. */
+  --color-label-slate: var(--label-slate);
+  --color-label-slate-subtle: var(--label-slate-subtle);
+  --color-label-red: var(--label-red);
+  --color-label-red-subtle: var(--label-red-subtle);
+  --color-label-orange: var(--label-orange);
+  --color-label-orange-subtle: var(--label-orange-subtle);
+  --color-label-amber: var(--label-amber);
+  --color-label-amber-subtle: var(--label-amber-subtle);
+  --color-label-green: var(--label-green);
+  --color-label-green-subtle: var(--label-green-subtle);
+  --color-label-teal: var(--label-teal);
+  --color-label-teal-subtle: var(--label-teal-subtle);
+  --color-label-blue: var(--label-blue);
+  --color-label-blue-subtle: var(--label-blue-subtle);
+  --color-label-indigo: var(--label-indigo);
+  --color-label-indigo-subtle: var(--label-indigo-subtle);
+  --color-label-violet: var(--label-violet);
+  --color-label-violet-subtle: var(--label-violet-subtle);
+  --color-label-pink: var(--label-pink);
+  --color-label-pink-subtle: var(--label-pink-subtle);
+
+  /* A small-phone breakpoint. The storefront's display type is the only thing
+     in the app wide enough to need one: below 360px the hero headline has to
+     step down a size or its longest word runs past the screen. */
+  --breakpoint-xs: 22.5rem;
+
+  /* Storefront display face. The variable is set by the store layout, so
+     `font-poster` falls back to the app's body face anywhere else. */
+  --font-poster: var(--font-syne), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  /* Storefront letterspacing. The shop sets its small mono labels wide; these
+     two steps are the whole vocabulary, so `tracking-label` / `tracking-banner`
+     keep every chip, badge and eyebrow identical. */
+  --tracking-label: 0.14em;
+  --tracking-banner: 0.2em;
+
+  /* Storefront canvas palette - resolves only inside a .storefront subtree. */
+  --color-voltage: var(--voltage);
+  --color-acid: var(--acid);
+  --color-magenta: var(--magenta);
+  --color-ultra: var(--ultra);
+  --color-ink: var(--ink);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+
+  --shadow-sm: 0 1px 2px 0 oklch(0.2 0.01 260 / 0.05);
+  --shadow-md: 0 2px 8px -2px oklch(0.2 0.01 260 / 0.08), 0 1px 2px 0 oklch(0.2 0.01 260 / 0.04);
+  --shadow-lg:
+    0 8px 24px -6px oklch(0.2 0.01 260 / 0.14), 0 2px 6px -2px oklch(0.2 0.01 260 / 0.06);
+
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+}
+
+@layer components {
+  /* Rich email-body editor (Tiptap). Content styling only; chrome lives on the
+     React components. Mirrors the spacing of the rendered email. */
+  .tiptap-body {
+    font-size: 0.875rem;
+    line-height: 1.6;
+  }
+  .tiptap-body :where(p, ul, ol, blockquote) {
+    margin: 0 0 0.75rem;
+  }
+  .tiptap-body :where(p, ul, ol, blockquote):last-child {
+    margin-bottom: 0;
+  }
+  .tiptap-body h1 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    line-height: 1.3;
+    margin: 0 0 0.5rem;
+  }
+  .tiptap-body h2 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    line-height: 1.3;
+    margin: 0 0 0.5rem;
+  }
+  .tiptap-body :where(ul, ol) {
+    padding-left: 1.5rem;
+  }
+  .tiptap-body ul {
+    list-style: disc;
+  }
+  .tiptap-body ol {
+    list-style: decimal;
+  }
+  .tiptap-body a {
+    color: var(--primary);
+    text-decoration: underline;
+  }
+  .tiptap-body blockquote {
+    padding-left: 0.75rem;
+    border-left: 3px solid var(--border);
+    color: var(--foreground-secondary);
+  }
+  /* Single-line token input (subject, preheader): shares the merge-token chip
+     but collapses the paragraph so it reads as one text field. */
+  .tiptap-inline {
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+  .tiptap-inline p {
+    margin: 0;
+  }
+  .tiptap-inline p.is-editor-empty:first-child::before {
+    content: attr(data-placeholder);
+    float: left;
+    height: 0;
+    color: var(--muted-foreground);
+    pointer-events: none;
+  }
+  /* Merge-token chips: editor-only affordance, never present in sent email. */
+  .tiptap-body .merge-token,
+  .merge-token {
+    display: inline-block;
+    padding: 0 0.25rem;
+    border-radius: var(--radius-sm);
+    background: var(--primary-subtle);
+    color: var(--primary);
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: 0.8em;
+    white-space: nowrap;
+    cursor: default;
+  }
+  .ProseMirror-selectednode .merge-token {
+    outline: 2px solid var(--ring);
+  }
+  /* Editor-side look for content blocks the email renderer styles for real. */
+  .tiptap-body img {
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--radius-sm);
+  }
+  .tiptap-body img.ProseMirror-selectednode {
+    outline: 2px solid var(--ring);
+  }
+  .tiptap-body .gss-button-row {
+    margin: 0 0 0.75rem;
+  }
+  .tiptap-body a.gss-button {
+    display: inline-block;
+    background: var(--primary);
+    color: var(--primary-foreground);
+    font-weight: 500;
+    text-decoration: none;
+    padding: 0.5rem 1.25rem;
+    border-radius: var(--radius-sm);
+    pointer-events: none;
+  }
+  .tiptap-body .ProseMirror-selectednode a.gss-button {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+
+  /* Storefront ticker. The track holds the phrase list twice and slides exactly
+     one copy's width, so the loop point is invisible. Motion is the whole point
+     of the strip, so under reduced-motion it simply parks rather than jumping. */
+  @keyframes storefront-ticker {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  .storefront-ticker-track {
+    animation: storefront-ticker 40s linear infinite;
+    will-change: transform;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .storefront-ticker-track {
+      animation: none;
+    }
+  }
+}
