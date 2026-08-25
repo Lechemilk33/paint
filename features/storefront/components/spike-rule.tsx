@@ -16,7 +16,15 @@ const SPIKE_PATH = Array.from({ length: TEETH * 2 + 1 }, (_, step) => {
  * rule. Decorative only, so it is hidden from assistive tech, and it stretches
  * rather than tiles so the teeth stay aligned to the container edges.
  */
-export function SpikeRule({ className }: { className?: string }) {
+export function SpikeRule({
+  className,
+  mirrored = false,
+}: {
+  className?: string;
+  /** Reflects the zigzag about its own axis, giving the symmetry the idiom
+   *  leans on. Costs one extra path and no extra markup. */
+  mirrored?: boolean;
+}) {
   return (
     <svg
       aria-hidden="true"
@@ -31,6 +39,17 @@ export function SpikeRule({ className }: { className?: string }) {
         strokeWidth={1.5}
         vectorEffect="non-scaling-stroke"
       />
+      {mirrored ? (
+        <path
+          d={SPIKE_PATH}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={1.5}
+          vectorEffect="non-scaling-stroke"
+          opacity={0.55}
+          transform={`scale(1 -1) translate(0 -${VIEW_HEIGHT})`}
+        />
+      ) : null}
     </svg>
   );
 }

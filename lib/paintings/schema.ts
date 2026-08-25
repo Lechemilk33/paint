@@ -80,9 +80,14 @@ export const paintingInputSchema = z.object({
     .max(100_000_000, 'That price looks like a typo'),
   /** Curatorial grouping. Blank means the piece stands on its own. */
   series: z.string().trim().default(''),
-  blurb: z.string().trim().min(1, 'Write the one-line description'),
-  framingShipping: z.string().trim().min(1, 'Say how it is framed and shipped'),
-  story: z.string().trim().min(1, 'Write the longer description'),
+  blurb: z.string().trim().max(300).default(''),
+  /**
+   * Both of these are the artist's own words and there is no honest default for
+   * either, so both are optional and the storefront omits whatever is blank.
+   * `framingShipping` falls back to the studio-wide shipping note when empty.
+   */
+  framingShipping: z.string().trim().max(500).default(''),
+  story: z.string().trim().max(4000).default(''),
   edition: editionSchema,
   availability: availabilitySchema,
   /** Studio-only. Never rendered on the public site. */

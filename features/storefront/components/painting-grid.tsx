@@ -29,9 +29,9 @@ export function PaintingGrid({ paintings }: { paintings: Painting[] }) {
 
       {visible.length === 0 ? (
         <div className="border-border flex flex-col items-start gap-3 border border-dashed p-10">
-          <p className="font-poster text-xl font-extrabold">Nothing in that corner</p>
+          <p className="font-poster text-xl font-extrabold">No matches</p>
           <p className="text-muted-foreground max-w-md text-sm">
-            No piece matches this combination right now. Clear the filters to see the whole wall.
+            Nothing matches this combination. Clear the filters to see everything.
           </p>
           <Button
             type="button"

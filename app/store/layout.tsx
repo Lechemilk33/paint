@@ -4,6 +4,7 @@ import { CartProvider } from '@/features/storefront/components/cart-provider';
 import { StoreFooter } from '@/features/storefront/components/store-footer';
 import { StoreHeader } from '@/features/storefront/components/store-header';
 import { listVisiblePaintings } from '@/lib/paintings/public';
+import { getStudio } from '@/lib/studio/repository';
 
 // The poster face for the storefront only. Loaded here rather than in the root
 // layout so the CRM never pays for a font it does not use.
@@ -15,15 +16,14 @@ const syne = Syne({
 });
 
 export const metadata: Metadata = {
-  title: 'Voltage Reef — psychedelic realism paintings',
-  description:
-    'Original acrylic paintings of animals real and invented, drawn with real anatomy and coloured like a power surge. One of each, sold direct from the studio.',
+  title: 'Psychedelic realism paintings',
+  description: 'Original paintings, sold direct from the studio.',
 };
 
 export default async function StoreLayout({ children }: { children: React.ReactNode }) {
   // The cart holds ids; the sheet needs the records behind them. Loading the
   // catalog once here means opening the cart costs no request of its own.
-  const paintings = await listVisiblePaintings();
+  const [paintings, studio] = await Promise.all([listVisiblePaintings(), getStudio()]);
 
   return (
     // `storefront` swaps the token palette for the whole subtree and `dark`
@@ -31,9 +31,9 @@ export default async function StoreLayout({ children }: { children: React.ReactN
     // fence, regardless of the visitor's app theme.
     <div className={`${syne.variable} storefront dark bg-background text-foreground min-h-svh`}>
       <CartProvider paintings={paintings}>
-        <StoreHeader />
+        <StoreHeader studio={studio} />
         <main>{children}</main>
-        <StoreFooter />
+        <StoreFooter studio={studio} />
       </CartProvider>
     </div>
   );

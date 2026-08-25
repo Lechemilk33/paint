@@ -9,7 +9,6 @@ import { AdminHeader } from '@/features/admin/components/admin-header';
 import { DeleteEnquiryButton } from '@/features/admin/components/delete-enquiry-button';
 import { EnquiryStatusBar } from '@/features/admin/components/enquiry-status-bar';
 import { setEnquiryNotesAction } from '@/features/admin/enquiry-actions';
-import { STUDIO } from '@/features/storefront/studio';
 import { getEnquiry, markEnquiryOpened } from '@/lib/enquiries/repository';
 import {
   BUDGET_LABEL,
@@ -179,7 +178,6 @@ export default async function EnquiryPage({ params }: { params: Promise<{ id: st
         <p className="text-muted-foreground mt-6 text-xs">
           Replying opens your mail app addressed to {enquiry.name.split(' ')[0]}, with{' '}
           {enquiry.reference} in the subject. Mark it replied afterwards so the inbox stays honest.
-          The studio address is {STUDIO.contactEmail}.
         </p>
       </main>
     </>

@@ -33,10 +33,16 @@ export function PaintingCard({
             be editing the work, while letting each card size itself leaves the
             captions on ragged baselines. The dark mat around a narrower canvas
             reads as the wall it would hang on. */}
-        <div className="border-border group-hover:border-magenta/70 bg-ink/50 relative aspect-square overflow-hidden border transition-colors duration-300">
+        <div className="border-border group-hover:border-vibrate-a bg-ink/50 relative aspect-square overflow-hidden border transition-colors duration-300">
+          {/* Second edge in the complementary hue at the same value; only
+              present on hover, so the grid at rest stays quiet. */}
+          <div
+            aria-hidden="true"
+            className="border-vibrate-b/0 group-hover:border-vibrate-b/80 pointer-events-none absolute inset-[2px] z-20 border transition-colors duration-300"
+          />
           {/* The glow is a sibling, not a filter on the image, so the paint
               keeps its own color at every interaction state. */}
-          <div className="from-magenta/0 via-magenta/0 to-voltage/0 group-hover:from-magenta/25 group-hover:to-voltage/25 pointer-events-none absolute inset-0 z-10 bg-gradient-to-tr opacity-0 mix-blend-screen transition-opacity duration-300 group-hover:opacity-100" />
+          <div className="from-vibrate-a/0 to-vibrate-b/0 group-hover:from-vibrate-a/20 group-hover:to-vibrate-b/20 pointer-events-none absolute inset-0 z-10 bg-gradient-to-tr opacity-0 mix-blend-screen transition-opacity duration-300 group-hover:opacity-100" />
           {photo ? (
             <Image
               src={photoUrl(photo)}

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ExternalLink, Inbox, LogOut, Palette } from 'lucide-react';
+import { ExternalLink, Inbox, LogOut, Palette, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { listEnquiries } from '@/lib/enquiries/repository';
 import { countUnread } from '@/lib/enquiries/schema';
@@ -45,6 +45,13 @@ export async function AdminHeader() {
                 {unread === 1 ? '1 unread enquiry' : `${unread} unread enquiries`}
               </span>
             ) : null}
+          </Link>
+        </Button>
+
+        <Button asChild variant="ghost" size="sm">
+          <Link href="/admin/studio">
+            <Settings />
+            <span className="hidden sm:inline">Studio</span>
           </Link>
         </Button>
 

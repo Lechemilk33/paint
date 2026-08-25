@@ -7,9 +7,9 @@ export default function StoreError({ reset }: { error: Error; reset: () => void 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col items-start gap-4 px-5 py-32 sm:px-8">
       <CircleAlert className="text-magenta size-8" strokeWidth={1.5} aria-hidden="true" />
-      <h1 className="font-poster text-3xl font-extrabold tracking-tight">The wall went dark</h1>
+      <h1 className="font-poster text-3xl font-extrabold tracking-tight">Something went wrong</h1>
       <p className="text-muted-foreground max-w-md text-sm">
-        The catalog could not be loaded. Check your connection and try again.
+        The paintings could not be loaded. Try again.
       </p>
       <Button
         variant="outline"

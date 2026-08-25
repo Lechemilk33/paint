@@ -1,18 +1,19 @@
-const PHRASES = [
-  'One of each',
-  'Acrylic on canvas',
-  'Painted by hand',
-  'No prints, no editions',
-  'Shipped flat, unframed',
-  'Commissions open',
-];
+import type { Studio } from '@/lib/studio/schema';
 
 /**
- * The band under the hero. Decorative motion, hidden from assistive tech: the
- * same facts are stated plainly in the studio section and the footer, so nothing
- * is only available here.
+ * The band under the hero.
+ *
+ * Its phrases come from the studio settings and nowhere else: it used to
+ * announce shipping terms and editioning policy that no one had actually
+ * stated. With nothing written it does not render, which is the correct
+ * amount of marquee for a shop with nothing to put in one.
+ *
+ * Decorative, so it is hidden from assistive tech - motion carrying no
+ * information a screen reader would want.
  */
-export function StoreTicker() {
+export function StoreTicker({ studio }: { studio: Studio }) {
+  if (studio.marquee.length === 0) return null;
+
   return (
     <div
       aria-hidden="true"
@@ -22,9 +23,9 @@ export function StoreTicker() {
         {/* Rendered twice: the animation slides exactly one copy's width. */}
         {[0, 1].map((copy) => (
           <div key={copy} className="flex shrink-0 items-center">
-            {PHRASES.map((phrase) => (
-              <span key={phrase} className="flex shrink-0 items-center">
-                <span className="text-foreground-secondary px-6 font-mono text-xs tracking-banner whitespace-nowrap uppercase">
+            {studio.marquee.map((phrase, index) => (
+              <span key={`${phrase}-${index}`} className="flex shrink-0 items-center">
+                <span className="text-foreground-secondary tracking-banner px-6 font-mono text-xs whitespace-nowrap uppercase">
                   {phrase}
                 </span>
                 <span className="bg-magenta size-1.5 shrink-0 rotate-45" />

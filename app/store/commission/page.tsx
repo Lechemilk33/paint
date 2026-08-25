@@ -1,46 +1,44 @@
 import type { Metadata } from 'next';
 import { EnquiryForm } from '@/features/enquiries/components/enquiry-form';
+import { MeltRule } from '@/features/storefront/components/melt-rule';
 import { SpikeRule } from '@/features/storefront/components/spike-rule';
-import { STUDIO } from '@/features/storefront/studio';
+import { getStudio } from '@/lib/studio/repository';
+import { studioName } from '@/lib/studio/schema';
 
 export const dynamic = 'force-dynamic';
 
-export const metadata: Metadata = {
-  title: `Commission a painting — ${STUDIO.name}`,
-  description:
-    'Commission an original psychedelic realism painting. Tell the studio what you want painted, the size and the budget, and it will reply with a price and a timeline.',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const studio = await getStudio();
+  return {
+    title: `Commission — ${studioName(studio)}`,
+    description: 'Request an original psychedelic realism painting.',
+  };
+}
 
-export default function CommissionPage() {
+export default async function CommissionPage() {
+  const studio = await getStudio();
+
   return (
     <div className="mx-auto w-full max-w-3xl px-5 pt-12 pb-24 sm:px-8">
-      <SpikeRule className="text-acid/50" />
+      <SpikeRule className="text-acid/50" mirrored />
 
       <h1 className="font-poster mt-10 text-4xl leading-[0.95] font-extrabold tracking-tight text-balance sm:text-5xl">
         Commission
         <span className="text-magenta"> a piece</span>
       </h1>
       <p className="text-foreground-secondary mt-5 max-w-xl text-base leading-relaxed sm:text-lg">
-        The studio takes a small number of commissions at a time. Animals real and invented, drawn
-        from your reference or from a description, painted the same way everything else here is:
-        real anatomy, impossible colour, black contour, small canvas.
+        Tell the studio what you would like painted. Send a brief and it will come back to you
+        with what it would cost and how long it would take.
       </p>
 
-      <dl className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-3">
-        {[
-          ['How it works', 'You send a brief, the studio replies with a price and a timeline.'],
-          ['What it costs', 'Depends on size and complexity. The budget field keeps it honest.'],
-          ['How long', 'Usually a few weeks once a piece starts, longer if the queue is full.'],
-        ].map(([term, detail]) => (
-          <div key={term} className="flex flex-col gap-1.5">
-            <dt className="tracking-label text-voltage font-mono text-xs uppercase">{term}</dt>
-            <dd className="text-muted-foreground text-sm leading-relaxed">{detail}</dd>
-          </div>
-        ))}
-      </dl>
+      {studio.responseTime ? (
+        <p className="text-muted-foreground tracking-label mt-4 font-mono text-xs uppercase">
+          Enquiries answered {studio.responseTime}
+        </p>
+      ) : null}
 
       <div className="mt-12">
-        <SpikeRule className="text-magenta/40" />
+        <MeltRule className="text-magenta/50" />
       </div>
 
       <div className="mt-10">

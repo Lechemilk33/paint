@@ -35,9 +35,9 @@ export function PaintingPurchase({ painting }: { painting: Painting }) {
   }
 
   const message = {
-    sold: 'This one has found a wall. A commission in the same vein is open.',
-    on_hold: 'Someone has a hold on this piece. Ask to be next in line if it comes back.',
-    not_for_sale: 'This piece is not for sale. It is here so you can see the work.',
+    sold: 'Sold. Ask about a commission if you want something in this vein.',
+    on_hold: 'On hold for someone. Ask to be next if it becomes available.',
+    not_for_sale: 'Not for sale.',
     available: '',
   }[painting.availability];
 

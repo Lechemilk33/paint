@@ -170,6 +170,18 @@
   --warning-subtle: oklch(0.27 0.08 80);
   --destructive-subtle: oklch(0.27 0.09 20);
 
+  /* ---- Optical vibration pair ---- */
+  /* Two near-complementary hues held at identical lightness and chroma. Equal
+     value is the whole trick: when two colours differ sharply in hue but not in
+     brightness, the eye cannot settle on which is in front, and the boundary
+     between them appears to buzz. This is the effect the 1960s Fillmore poster
+     artists engineered deliberately, borrowing it from Op Art and simultaneous
+     contrast research.
+     Used on decorative edges and rules only. The same property that makes an
+     edge shimmer makes text on it unreadable, so it never sits behind copy. */
+  --vibrate-a: oklch(0.72 0.25 348);
+  --vibrate-b: oklch(0.72 0.25 152);
+
   /* ---- Canvas palette ---- */
   /* The five hues the paintings are actually built from. Used for accents,
      glows, and the spike motifs - never as body-text color on the ground. */
@@ -248,6 +260,8 @@
   --tracking-banner: 0.2em;
 
   /* Storefront canvas palette - resolves only inside a .storefront subtree. */
+  --color-vibrate-a: var(--vibrate-a);
+  --color-vibrate-b: var(--vibrate-b);
   --color-voltage: var(--voltage);
   --color-acid: var(--acid);
   --color-magenta: var(--magenta);
@@ -375,6 +389,27 @@
   .tiptap-body .ProseMirror-selectednode a.gss-button {
     outline: 2px solid var(--ring);
     outline-offset: 2px;
+  }
+
+  /* Fluid contour. Psychedelic form melts and transforms rather than holding a
+     hard edge, so the wave dividers drift their shape instead of sitting still.
+     A long, prime-ish duration keeps two rules on the same page out of phase. */
+  @keyframes storefront-melt {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  .storefront-melt-track {
+    animation: storefront-melt 23s linear infinite;
+    will-change: transform;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .storefront-melt-track {
+      animation: none;
+    }
   }
 
   /* Storefront ticker. The track holds the phrase list twice and slides exactly

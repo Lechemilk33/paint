@@ -1,28 +1,32 @@
-import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowDown } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { photoUrl, primaryPhoto, type Painting } from '@/lib/paintings/schema';
-import { STUDIO } from '../studio';
+import type { Painting } from '@/lib/paintings/schema';
+import type { Studio } from '@/lib/studio/schema';
 import { AuroraField } from './aurora-field';
-import { StatusBadge } from './status-badge';
+import { HeroCarousel } from './hero-carousel';
 
 /**
- * The opening statement. The featured canvas is the only saturated thing on the
- * screen at rest - the type is set on near-black so the paint carries the color,
- * which is how the work reads on a wall.
+ * The opening statement.
  *
- * Takes the featured piece as a prop: the route already loaded the catalog to
- * render the grid, so fetching again here would be a second read of the same
- * data. Renders nothing when the catalog is empty.
+ * The headline names the genre and nothing else. What used to sit under it was
+ * a paragraph about anatomy, acrylic and the studio table, written by whoever
+ * built the site rather than by the person who made the work - so it is gone,
+ * and the studio's own line takes its place when there is one.
+ *
+ * The canvases are the only saturated thing on screen at rest. That is the
+ * whole idea: psychedelic realism puts impossible colour on a truthfully drawn
+ * subject, so the page stays near-black and lets the paint do the shouting.
  */
-export function StoreHero({ painting, totalCount, availableCount }: {
-  painting: Painting;
-  totalCount: number;
+export function StoreHero({
+  paintings,
+  studio,
+  availableCount,
+}: {
+  paintings: Painting[];
+  studio: Studio;
   availableCount: number;
 }) {
-  const photo = primaryPhoto(painting);
-
   return (
     <section className="relative isolate overflow-hidden">
       <AuroraField />
@@ -30,74 +34,51 @@ export function StoreHero({ painting, totalCount, availableCount }: {
           the canvas, so the headline breaks where it is written to break. */}
       <div className="relative mx-auto grid w-full max-w-7xl grid-cols-1 items-center gap-12 px-5 pt-16 pb-20 sm:px-8 lg:grid-cols-[1.05fr_1fr] lg:gap-16 lg:pt-24 lg:pb-28">
         <div className="flex flex-col items-start gap-7">
-          <p className="border-voltage/40 text-voltage border px-3 py-1 font-mono text-xs tracking-banner uppercase">
-            Originals · {availableCount} available of {totalCount}
+          <p className="border-voltage/40 text-voltage tracking-banner border px-3 py-1 font-mono text-xs uppercase">
+            {paintings.length} {paintings.length === 1 ? 'piece' : 'pieces'}
+            {availableCount > 0 ? ` · ${availableCount} available` : ''}
           </p>
 
           {/* leading-[0.92]: display type at this size needs sub-1 leading to
-              stack as a block. Tailwind's tightest step, leading-none, is 1. */}
-          <h1 className="font-poster text-3xl leading-[0.92] font-extrabold tracking-tight text-balance xs:text-4xl sm:text-6xl lg:text-7xl">
-            Psychedelic
-            <span className="text-magenta"> realism</span>,
+              stack as a block; Tailwind's tightest step, leading-none, is 1.
+              The two words are set in near-complementary hues at close value -
+              the optical-vibration trick the 1960s poster artists used, where
+              the boundary between them buzzes instead of sitting flat. */}
+          <h1 className="font-poster xs:text-5xl text-4xl leading-[0.92] font-extrabold tracking-tight text-balance sm:text-6xl lg:text-7xl">
+            <span className="text-acid">Psychedelic</span>
             <br />
-            painted small and loud.
+            <span className="text-magenta">realism</span>
           </h1>
 
-          <p className="text-foreground-secondary max-w-lg text-base leading-relaxed sm:text-lg">
-            Real animals and invented ones, drawn with real anatomy and coloured like a power surge.
-            Acrylic and ink on stretched canvas, one of each, straight from the studio table.
-          </p>
+          {studio.tagline ? (
+            <p className="text-foreground-secondary max-w-lg text-base leading-relaxed sm:text-lg">
+              {studio.tagline}
+            </p>
+          ) : null}
 
           <div className="flex flex-wrap items-center gap-3">
             <Button
               asChild
               size="lg"
-              className="rounded-none font-mono text-xs tracking-label uppercase"
+              className="tracking-label rounded-none font-mono text-xs uppercase"
             >
-              <Link href="#catalog">
-                See the work
-                <ArrowDown aria-hidden="true" />
+              <Link href="/store/gallery">
+                See the gallery
+                <ArrowRight aria-hidden="true" />
               </Link>
             </Button>
             <Button
               asChild
               size="lg"
               variant="outline"
-              className="border-voltage/50 text-voltage hover:bg-voltage/10 hover:text-voltage rounded-none font-mono text-xs tracking-label uppercase"
+              className="border-voltage/50 text-voltage hover:bg-voltage/10 hover:text-voltage tracking-label rounded-none font-mono text-xs uppercase"
             >
-              <a href={`mailto:${STUDIO.contactEmail}`}>Commission a piece</a>
+              <Link href="/store/commission">Commission a piece</Link>
             </Button>
           </div>
         </div>
 
-        {/* The featured canvas, tilted a couple of degrees so it reads as an
-            object on a table rather than a product shot. */}
-        <Link
-          href={`/store/${painting.slug}`}
-          className="group focus-visible:ring-ring relative block focus-visible:ring-2 focus-visible:ring-offset-4 focus-visible:ring-offset-background focus-visible:outline-none"
-        >
-          <div
-            aria-hidden="true"
-            className="bg-magenta/40 absolute -inset-6 -z-10 blur-3xl transition-opacity duration-500 group-hover:opacity-80"
-          />
-          {photo ? (
-            <Image
-              src={photoUrl(photo)}
-              alt={photo.alt || painting.title}
-              width={photo.width}
-              height={photo.height}
-              priority
-              sizes="(min-width: 1024px) 42vw, 92vw"
-              className="border-border ease-out-quart h-auto w-full -rotate-1 border shadow-lg transition-transform duration-500 group-hover:rotate-0"
-            />
-          ) : null}
-          <div className="mt-4 flex flex-wrap items-center gap-3">
-            <StatusBadge availability={painting.availability} />
-            <p className="font-mono text-xs tracking-label uppercase">
-              Featured · {painting.title}, {painting.year}
-            </p>
-          </div>
-        </Link>
+        <HeroCarousel paintings={paintings} />
       </div>
     </section>
   );

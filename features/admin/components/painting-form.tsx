@@ -204,16 +204,14 @@ export function PaintingForm({ painting }: { painting?: Painting }) {
         <Field
           name="framingShipping"
           label="Framing and shipping"
+          hint="Only if this piece differs from your usual terms in Studio settings. Blank uses those."
           error={err('framingShipping')}
-          required
         >
           <Textarea
             id="framingShipping"
             name="framingShipping"
             rows={2}
             defaultValue={painting?.framingShipping}
-            placeholder="Unframed, shipped flat in a rigid mailer."
-            required
           />
         </Field>
       </section>
@@ -224,21 +222,19 @@ export function PaintingForm({ painting }: { painting?: Painting }) {
         <Field
           name="blurb"
           label="One-line description"
-          hint="The short line that sits under the title on the site."
+          hint="The short line under the title. Left out of the page entirely when blank."
           error={err('blurb')}
-          required
         >
-          <Textarea id="blurb" name="blurb" rows={2} defaultValue={painting?.blurb} required />
+          <Textarea id="blurb" name="blurb" rows={2} defaultValue={painting?.blurb} />
         </Field>
 
         <Field
           name="story"
           label="About this painting"
-          hint="The longer paragraph on the detail page."
+          hint="In your own words - how it was made, what it is. No section appears until you write one."
           error={err('story')}
-          required
         >
-          <Textarea id="story" name="story" rows={7} defaultValue={painting?.story} required />
+          <Textarea id="story" name="story" rows={7} defaultValue={painting?.story} />
         </Field>
       </section>
 

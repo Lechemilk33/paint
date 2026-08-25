@@ -6,6 +6,7 @@ import {
   EDITION_LABEL,
   type Painting,
 } from '@/lib/paintings/schema';
+import type { Studio } from '@/lib/studio/schema';
 import { formatDimensions, formatPrice } from '../format';
 import { PaintingGallery } from './painting-gallery';
 import { PaintingPurchase } from './painting-purchase';
@@ -24,10 +25,14 @@ function SpecRow({ label, value }: { label: string; value: string }) {
 export function PaintingDetail({
   painting,
   paintings,
+  studio,
 }: {
   painting: Painting;
   paintings: Painting[];
+  studio: Studio;
 }) {
+  // A piece can override the studio's usual terms; most will not.
+  const shipping = painting.framingShipping || studio.shipping;
   return (
     <>
       <Button
@@ -65,9 +70,11 @@ export function PaintingDetail({
             {painting.title}
           </h1>
 
-          <p className="text-foreground-secondary text-base leading-relaxed sm:text-lg">
-            {painting.blurb}
-          </p>
+          {painting.blurb ? (
+            <p className="text-foreground-secondary text-base leading-relaxed sm:text-lg">
+              {painting.blurb}
+            </p>
+          ) : null}
 
           <p className="font-poster text-3xl font-extrabold tabular-nums">
             {painting.availability === 'available' || painting.availability === 'on_hold'
@@ -82,15 +89,17 @@ export function PaintingDetail({
             <SpecRow label="Medium" value={painting.medium} />
             <SpecRow label="Canvas" value={formatDimensions(painting)} />
             <SpecRow label="Edition" value={EDITION_LABEL[painting.edition]} />
-            <SpecRow label="Ships" value={painting.framingShipping} />
+            {shipping ? <SpecRow label="Ships" value={shipping} /> : null}
           </dl>
 
-          <div className="flex flex-col gap-3">
-            <h2 className="tracking-label font-mono text-xs uppercase">About this painting</h2>
-            <p className="text-foreground-secondary text-sm leading-relaxed whitespace-pre-line">
-              {painting.story}
-            </p>
-          </div>
+          {painting.story ? (
+            <div className="flex flex-col gap-3">
+              <h2 className="tracking-label font-mono text-xs uppercase">About this painting</h2>
+              <p className="text-foreground-secondary text-sm leading-relaxed whitespace-pre-line">
+                {painting.story}
+              </p>
+            </div>
+          ) : null}
         </div>
       </div>
 

@@ -3,21 +3,20 @@
 import Link from 'next/link';
 import { ShoppingBag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { STUDIO } from '../studio';
+import { studioName, type Studio } from '@/lib/studio/schema';
 import { useCart } from './cart-provider';
 import { CartSheet } from './cart-sheet';
 
 const NAV = [
-  { href: '/store#catalog', label: 'Work' },
+  { href: '/store/gallery', label: 'Gallery' },
   { href: '/store/commission', label: 'Commission' },
-  { href: '/store#studio', label: 'Studio' },
 ];
 
 /**
  * Store chrome. Sticky and translucent so the paintings keep scrolling under it,
  * and it owns the single mounted CartSheet for the whole storefront.
  */
-export function StoreHeader() {
+export function StoreHeader({ studio }: { studio: Studio }) {
   const { held, setOpen } = useCart();
 
   return (
@@ -30,7 +29,7 @@ export function StoreHeader() {
           {/* Never allowed to wrap: a two-line wordmark blows out the fixed
               header height on a narrow screen. */}
           <span className="font-poster text-base leading-none font-extrabold tracking-tight whitespace-nowrap sm:text-lg">
-            {STUDIO.name}
+            {studioName(studio)}
           </span>
           <span
             aria-hidden="true"
