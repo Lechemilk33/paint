@@ -135,13 +135,14 @@ async function main(): Promise<void> {
       continue;
     }
 
-    // Instant checkout stays off and shipping stays zero: these carry
-    // placeholder prices, and a seeded painting must not be sellable before
-    // anyone has looked at what it costs.
+    // Instant checkout stays off, shipping stays zero and prints stay off:
+    // these carry placeholder prices, and a seeded painting must not be
+    // sellable - or promised as a print - before anyone has looked at it.
     const painting = await createPainting({
       ...input,
       shippingCents: 0,
       instantCheckout: false,
+      printsAvailable: false,
       driveFolder: '',
       notes: '',
     });

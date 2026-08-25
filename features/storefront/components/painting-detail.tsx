@@ -28,10 +28,13 @@ export function PaintingDetail({
   painting,
   paintings,
   studio,
+  ask,
 }: {
   painting: Painting;
   paintings: Painting[];
   studio: Studio;
+  /** Raw `?ask=` value. Validated where it is used, never trusted here. */
+  ask?: string;
 }) {
   // A piece can override the studio's usual terms; most will not.
   const shipping = painting.framingShipping || studio.shipping;
@@ -87,7 +90,11 @@ export function PaintingDetail({
           {/* Decided here rather than in the client component: whether Stripe
               has keys is a server fact, and a Buy button that cannot reach a
               checkout is worse than no Buy button. */}
-          <PaintingPurchase painting={painting} canBuy={stripeConfigured() && canBuyNow(painting)} />
+          <PaintingPurchase
+            painting={painting}
+            ask={ask}
+            canBuy={stripeConfigured() && canBuyNow(painting)}
+          />
 
           <dl className="mt-2">
             <SpecRow label="Year" value={String(painting.year)} />

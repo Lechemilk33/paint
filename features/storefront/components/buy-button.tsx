@@ -52,7 +52,7 @@ export function BuyButton({ painting }: { painting: Painting }) {
   const [state, formAction] = useActionState(startCheckoutAction, EMPTY_CHECKOUT_STATE);
 
   return (
-    <form action={formAction} className="flex flex-col gap-3">
+    <form action={formAction} className="flex w-full flex-col gap-3">
       <input type="hidden" name="paintingId" value={painting.id} />
       <Submit painting={painting} />
 

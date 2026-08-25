@@ -121,6 +121,17 @@ export const paintingInputSchema = z.object({
    * price - cannot be sold until the studio says so.
    */
   instantCheckout: z.boolean().default(false),
+  /**
+   * Whether the store may offer a reproduction of this piece.
+   *
+   * Defaults to false, and that default matters: reproduction is not a given.
+   * An original may have gone to a collector with those rights, the artist may
+   * not want a particular piece reproduced, or the photograph may simply not be
+   * good enough to print from. Offering a print of everything by default would
+   * have the site making a promise on the studio's behalf for every canvas at
+   * once - so the option appears only where it has been turned on.
+   */
+  printsAvailable: z.boolean().default(false),
   /** Studio-only. Never rendered on the public site. */
   driveFolder: z.string().trim().default(''),
   notes: z.string().trim().default(''),

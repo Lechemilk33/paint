@@ -41,7 +41,9 @@ function Field({
 }) {
   return (
     <div className="space-y-1.5">
-      <Label htmlFor={name}>
+      {/* block rather than the primitive's flex, so a long label wraps as a
+          sentence instead of one word per line beside its required marker. */}
+      <Label htmlFor={name} className="block leading-tight">
         {label}
         {required ? <span className="text-destructive ml-0.5">*</span> : null}
       </Label>
@@ -218,28 +220,41 @@ export function PaintingForm({ painting }: { painting?: Painting }) {
           />
         </Field>
 
-        <div className="border-input space-y-1.5 rounded-md border p-4">
-          <div className="flex items-start gap-3">
+        <Field
+          name="instantCheckout"
+          label="Instant checkout"
+          hint="Off by default. Anything left off still takes inquiries, which is what every piece does. Check the price and the shipping above before turning it on."
+          error={err('instantCheckout')}
+        >
+          <label className="flex items-center gap-2 text-sm">
             <input
               id="instantCheckout"
               name="instantCheckout"
               type="checkbox"
               defaultChecked={painting?.instantCheckout ?? false}
-              className="border-input accent-primary mt-0.5 size-4 rounded"
+              className="accent-primary size-4"
             />
-            <div className="space-y-1">
-              <Label htmlFor="instantCheckout" className="font-medium">
-                Let people buy this outright
-              </Label>
-              <p className="text-muted-foreground text-xs">
-                Adds a Buy button that takes payment by card on the spot. Leave this off for
-                anything you want to talk through first - those pieces still take inquiries, which
-                is what every piece does by default. Check the price and the shipping above before
-                you switch it on.
-              </p>
-            </div>
-          </div>
-        </div>
+            Let people buy this outright, by card
+          </label>
+        </Field>
+
+        <Field
+          name="printsAvailable"
+          label="Prints"
+          hint="Off by default. Turn it on only for pieces you are willing and able to reproduce."
+          error={err('printsAvailable')}
+        >
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              id="printsAvailable"
+              name="printsAvailable"
+              type="checkbox"
+              defaultChecked={painting?.printsAvailable ?? false}
+              className="accent-primary size-4"
+            />
+            Let visitors request a print of this piece
+          </label>
+        </Field>
 
         <Field
           name="framingShipping"

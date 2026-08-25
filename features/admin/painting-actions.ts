@@ -68,9 +68,9 @@ function readForm(formData: FormData) {
     // Blank shipping means included, not missing - so it becomes zero rather
     // than the NaN that makes a blank price an error.
     shippingCents: Number.isFinite(shippingDollars) ? Math.round(shippingDollars * 100) : 0,
-    // An unchecked box sends nothing at all, which is the only way HTML has of
-    // saying false.
+    // An unchecked box submits nothing at all, so absence is the false case.
     instantCheckout: formData.get('instantCheckout') !== null,
+    printsAvailable: formData.get('printsAvailable') !== null,
     driveFolder: text('driveFolder'),
     notes: text('notes'),
   };
