@@ -1,5 +1,5 @@
 import { Brush, PackageCheck, Sparkles } from 'lucide-react';
-import { STUDIO } from '../catalog';
+import { STUDIO } from '../studio';
 import { SpikeRule } from './spike-rule';
 
 const NOTES = [

@@ -2,7 +2,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { fetchCatalogSummary, fetchFeaturedPainting, STUDIO } from '../catalog';
+import { photoUrl, primaryPhoto, type Painting } from '@/lib/paintings/schema';
+import { STUDIO } from '../studio';
 import { AuroraField } from './aurora-field';
 import { StatusBadge } from './status-badge';
 
@@ -11,13 +12,16 @@ import { StatusBadge } from './status-badge';
  * screen at rest - the type is set on near-black so the paint carries the color,
  * which is how the work reads on a wall.
  *
- * Fetches its own data so the route stays pure composition.
+ * Takes the featured piece as a prop: the route already loaded the catalog to
+ * render the grid, so fetching again here would be a second read of the same
+ * data. Renders nothing when the catalog is empty.
  */
-export async function StoreHero() {
-  const [painting, { total: totalCount, available: availableCount }] = await Promise.all([
-    fetchFeaturedPainting(),
-    fetchCatalogSummary(),
-  ]);
+export function StoreHero({ painting, totalCount, availableCount }: {
+  painting: Painting;
+  totalCount: number;
+  availableCount: number;
+}) {
+  const photo = primaryPhoto(painting);
 
   return (
     <section className="relative isolate overflow-hidden">
@@ -76,17 +80,19 @@ export async function StoreHero() {
             aria-hidden="true"
             className="bg-magenta/40 absolute -inset-6 -z-10 blur-3xl transition-opacity duration-500 group-hover:opacity-80"
           />
-          <Image
-            src={painting.image.src}
-            alt={painting.image.alt}
-            width={painting.image.width}
-            height={painting.image.height}
-            priority
-            sizes="(min-width: 1024px) 42vw, 92vw"
-            className="border-border h-auto w-full -rotate-1 border shadow-lg transition-transform duration-500 ease-out-quart group-hover:rotate-0"
-          />
+          {photo ? (
+            <Image
+              src={photoUrl(photo)}
+              alt={photo.alt || painting.title}
+              width={photo.width}
+              height={photo.height}
+              priority
+              sizes="(min-width: 1024px) 42vw, 92vw"
+              className="border-border ease-out-quart h-auto w-full -rotate-1 border shadow-lg transition-transform duration-500 group-hover:rotate-0"
+            />
+          ) : null}
           <div className="mt-4 flex flex-wrap items-center gap-3">
-            <StatusBadge status={painting.status} />
+            <StatusBadge availability={painting.availability} />
             <p className="font-mono text-xs tracking-label uppercase">
               Featured · {painting.title}, {painting.year}
             </p>

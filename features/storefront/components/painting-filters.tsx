@@ -1,9 +1,11 @@
 'use client';
 
 import { cn } from '@/lib/utils';
-import { PAINTING_STATUS_LABEL, type PaintingFilters, type Series } from '../schema';
-
-const STATUS_ORDER = ['available', 'reserved', 'sold'] as const;
+import {
+  AVAILABILITY_LABEL,
+  availabilitySchema,
+  type PaintingFilters,
+} from '@/lib/paintings/schema';
 
 function FilterChip({
   isActive,
@@ -20,7 +22,7 @@ function FilterChip({
       onClick={onClick}
       aria-pressed={isActive}
       className={cn(
-        'focus-visible:ring-ring border px-3 py-1.5 font-mono text-xs tracking-label whitespace-nowrap uppercase transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-background focus-visible:outline-none',
+        'focus-visible:ring-ring tracking-label focus-visible:ring-offset-background border px-3 py-1.5 font-mono text-xs whitespace-nowrap uppercase transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none',
         isActive
           ? 'border-magenta bg-magenta text-primary-foreground'
           : 'border-border text-muted-foreground hover:border-voltage/60 hover:text-voltage',
@@ -32,40 +34,45 @@ function FilterChip({
 }
 
 /**
- * Two independent filter rows over the cached catalog. Chips rather than a
- * select: with three series and three states the whole choice set is visible at
- * once, which beats hiding five pieces behind a dropdown.
+ * Two independent filter rows over the catalog. Chips rather than a select:
+ * the whole choice set is visible at once, which beats hiding a handful of
+ * pieces behind a dropdown. The series row is built from whatever series the
+ * catalog actually contains, so adding one in the admin makes a chip appear.
  */
 export function PaintingFiltersBar({
   series,
   value,
   onChange,
 }: {
-  series: Series[];
+  series: string[];
   value: PaintingFilters;
   onChange: (next: PaintingFilters) => void;
 }) {
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filter by series">
-        <FilterChip
-          isActive={value.seriesId === null}
-          onClick={() => onChange({ ...value, seriesId: null })}
+      {series.length > 0 ? (
+        <div
+          className="flex flex-wrap items-center gap-2"
+          role="group"
+          aria-label="Filter by series"
         >
-          All work
-        </FilterChip>
-        {series.map((entry) => (
           <FilterChip
-            key={entry.id}
-            isActive={value.seriesId === entry.id}
-            onClick={() =>
-              onChange({ ...value, seriesId: value.seriesId === entry.id ? null : entry.id })
-            }
+            isActive={value.series === null}
+            onClick={() => onChange({ ...value, series: null })}
           >
-            {entry.name}
+            All work
           </FilterChip>
-        ))}
-      </div>
+          {series.map((name) => (
+            <FilterChip
+              key={name}
+              isActive={value.series === name}
+              onClick={() => onChange({ ...value, series: value.series === name ? null : name })}
+            >
+              {name}
+            </FilterChip>
+          ))}
+        </div>
+      ) : null}
 
       <div
         className="flex flex-wrap items-center gap-2"
@@ -73,18 +80,20 @@ export function PaintingFiltersBar({
         aria-label="Filter by availability"
       >
         <FilterChip
-          isActive={value.status === null}
-          onClick={() => onChange({ ...value, status: null })}
+          isActive={value.availability === null}
+          onClick={() => onChange({ ...value, availability: null })}
         >
           Any status
         </FilterChip>
-        {STATUS_ORDER.map((status) => (
+        {availabilitySchema.options.map((option) => (
           <FilterChip
-            key={status}
-            isActive={value.status === status}
-            onClick={() => onChange({ ...value, status: value.status === status ? null : status })}
+            key={option}
+            isActive={value.availability === option}
+            onClick={() =>
+              onChange({ ...value, availability: value.availability === option ? null : option })
+            }
           >
-            {PAINTING_STATUS_LABEL[status]}
+            {AVAILABILITY_LABEL[option]}
           </FilterChip>
         ))}
       </div>

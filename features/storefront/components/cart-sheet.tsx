@@ -2,10 +2,8 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { useQuery } from '@tanstack/react-query';
 import { Mail, ShoppingBag, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
 import {
   Sheet,
   SheetContent,
@@ -14,48 +12,35 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet';
-import { STUDIO } from '../catalog';
+import { photoUrl, primaryPhoto, type Painting } from '@/lib/paintings/schema';
 import { buildInquiryMailto, formatDimensions, formatPrice } from '../format';
-import { paintingListOptions } from '../queries';
+import { STUDIO } from '../studio';
 import { useCart } from './cart-provider';
 import { SpikeRule } from './spike-rule';
 
 /**
- * The held pieces. Mounted only while the sheet is open, which is why it fetches
- * with useQuery rather than suspending: the catalog is data behind an
- * interaction, and on the catalog route the cache is already warm from the
- * route's prefetch.
+ * The held pieces. The catalog comes from the cart context, which the store
+ * layout fills on the server, so there is nothing to load here and no failure
+ * state to render - the ids are resolved against data the page already has.
  */
+/** The held piece's primary photo, or a neutral block when it has none. */
+function PaintingThumb({ painting }: { painting: Painting }) {
+  const photo = primaryPhoto(painting);
+  if (!photo) return <div className="bg-muted size-20 shrink-0" />;
+  return (
+    <Image
+      src={photoUrl(photo)}
+      alt=""
+      width={photo.width}
+      height={photo.height}
+      sizes="80px"
+      className="size-20 shrink-0 object-cover"
+    />
+  );
+}
+
 function CartContents() {
-  const { held, release, clear } = useCart();
-  const { data: paintings, isPending, isError, refetch } = useQuery(paintingListOptions());
-
-  if (isPending) {
-    return (
-      <div className="flex flex-col gap-4 px-4">
-        {held.map((id) => (
-          <Skeleton key={id} className="h-20 w-full rounded-none" />
-        ))}
-      </div>
-    );
-  }
-
-  if (isError) {
-    return (
-      <div className="flex flex-col items-start gap-3 px-4">
-        <p className="text-sm">The catalog did not load, so your holds cannot be shown.</p>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={() => void refetch()}
-          className="rounded-none font-mono text-xs tracking-label uppercase"
-        >
-          Try again
-        </Button>
-      </div>
-    );
-  }
+  const { held, paintings, release, clear } = useCart();
 
   // Ids that no longer resolve (catalog edited since the hold was stored) are
   // dropped rather than rendered as a blank row.
@@ -82,14 +67,7 @@ function CartContents() {
       <ul className="flex flex-1 flex-col gap-4 overflow-y-auto px-4">
         {heldPaintings.map((painting) => (
           <li key={painting.id} className="border-border flex gap-3 border-b pb-4 last:border-b-0">
-            <Image
-              src={painting.image.src}
-              alt=""
-              width={painting.image.width}
-              height={painting.image.height}
-              sizes="80px"
-              className="size-20 shrink-0 object-cover"
-            />
+            <PaintingThumb painting={painting} />
             <div className="flex min-w-0 flex-1 flex-col gap-1">
               <Link
                 href={`/store/${painting.slug}`}

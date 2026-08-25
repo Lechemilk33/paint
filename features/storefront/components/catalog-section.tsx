@@ -1,8 +1,9 @@
-import { SpikeRule } from './spike-rule';
+import type { Painting } from '@/lib/paintings/schema';
 import { PaintingGrid } from './painting-grid';
+import { SpikeRule } from './spike-rule';
 
 /** The catalog block: heading, rule, and the filterable grid. */
-export function CatalogSection() {
+export function CatalogSection({ paintings }: { paintings: Painting[] }) {
   return (
     <section id="catalog" className="flex scroll-mt-24 flex-col gap-10 pt-20">
       <SpikeRule className="text-magenta/50" />
@@ -12,7 +13,7 @@ export function CatalogSection() {
           Everything currently on the wall. Filter by series or by what is still going.
         </p>
       </div>
-      <PaintingGrid />
+      <PaintingGrid paintings={paintings} />
     </section>
   );
 }

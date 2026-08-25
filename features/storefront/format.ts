@@ -1,4 +1,4 @@
-import type { Painting } from './schema';
+import type { Painting } from '@/lib/paintings/schema';
 
 const PRICE_FORMAT = new Intl.NumberFormat('en-US', {
   style: 'currency',

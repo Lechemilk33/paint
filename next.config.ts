@@ -1,17 +1,19 @@
 import type { NextConfig } from 'next';
 
-// A fully static site: every page prerenders at build time, so `next build`
-// emits plain HTML/CSS/JS into out/ that any static host will serve - Netlify,
-// Cloudflare Pages, GitHub Pages, S3. There is no server, no database and no
-// environment variable anywhere in this app.
+// This site used to be a static export. It is not any more: the catalog lives
+// in blob storage, the admin signs in, and photos are uploaded at runtime -
+// none of which a folder of files can do. Netlify's Next runtime builds and
+// serves it as a real application.
 const nextConfig: NextConfig = {
-  output: 'export',
-  // next/image's optimizer is a server; a static export has none, so the
-  // images are served exactly as they sit in public/.
+  // Painting photos are served by an app route straight out of blob storage,
+  // and they are already bounded and re-encoded to WebP on upload, so a second
+  // optimisation pass at request time would only add latency.
   images: { unoptimized: true },
-  // Emit /store/index.html rather than /store.html, so hosts resolve the
-  // clean URLs without per-host redirect rules.
-  trailingSlash: true,
+  // Uploads are photographs straight off a phone; the 1MB default body limit
+  // for a server action is smaller than most of them.
+  experimental: {
+    serverActions: { bodySizeLimit: '25mb' },
+  },
 };
 
 export default nextConfig;

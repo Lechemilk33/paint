@@ -1,35 +1,31 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { useSuspenseQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
-import { paintingListOptions, seriesListOptions } from '../queries';
-import { filterPaintings, NO_PAINTING_FILTERS, type PaintingFilters } from '../schema';
+import {
+  NO_PAINTING_FILTERS,
+  filterPaintings,
+  seriesOf,
+  type Painting,
+  type PaintingFilters,
+} from '@/lib/paintings/schema';
 import { PaintingCard } from './painting-card';
 import { PaintingFiltersBar } from './painting-filters';
 
 /**
- * The catalog. Both queries are prefetched on the server and consumed here with
- * useSuspenseQuery, so the first paint already has the work in it. Filtering
- * runs over the cached array - there is no request behind a chip.
+ * The catalog. The list is rendered on the server and handed down as a prop, so
+ * the first paint already has the work in it; filtering then runs over that
+ * array in the browser and no chip costs a request.
  */
-export function PaintingGrid() {
-  const { data: paintings } = useSuspenseQuery(paintingListOptions());
-  const { data: series } = useSuspenseQuery(seriesListOptions());
+export function PaintingGrid({ paintings }: { paintings: Painting[] }) {
   const [filters, setFilters] = useState<PaintingFilters>(NO_PAINTING_FILTERS);
 
+  const series = useMemo(() => seriesOf(paintings), [paintings]);
   const visible = useMemo(() => filterPaintings(paintings, filters), [paintings, filters]);
-  const activeSeries = series.find((entry) => entry.id === filters.seriesId) ?? null;
 
   return (
     <div className="flex flex-col gap-8">
       <PaintingFiltersBar series={series} value={filters} onChange={setFilters} />
-
-      {activeSeries ? (
-        <p className="text-foreground-secondary max-w-2xl text-sm leading-relaxed">
-          {activeSeries.blurb}
-        </p>
-      ) : null}
 
       {visible.length === 0 ? (
         <div className="border-border flex flex-col items-start gap-3 border border-dashed p-10">
@@ -42,7 +38,7 @@ export function PaintingGrid() {
             variant="outline"
             size="sm"
             onClick={() => setFilters(NO_PAINTING_FILTERS)}
-            className="rounded-none font-mono text-xs tracking-label uppercase"
+            className="tracking-label rounded-none font-mono text-xs uppercase"
           >
             Clear filters
           </Button>

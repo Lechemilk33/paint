@@ -1,7 +1,8 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import { ImageOff } from 'lucide-react';
+import { photoUrl, primaryPhoto, type Painting } from '@/lib/paintings/schema';
 import { formatDimensions, formatPrice } from '../format';
-import type { Painting } from '../schema';
 import { StatusBadge } from './status-badge';
 
 /**
@@ -19,10 +20,12 @@ export function PaintingCard({
   painting: Painting;
   priority?: boolean;
 }) {
+  const photo = primaryPhoto(painting);
+
   return (
     <Link
       href={`/store/${painting.slug}`}
-      className="group focus-visible:ring-ring block rounded-none focus-visible:ring-2 focus-visible:ring-offset-4 focus-visible:ring-offset-background focus-visible:outline-none"
+      className="group focus-visible:ring-ring focus-visible:ring-offset-background block rounded-none focus-visible:ring-2 focus-visible:ring-offset-4 focus-visible:outline-none"
     >
       <article>
         {/* A square frame with the canvas contained inside it, not cropped to
@@ -34,17 +37,23 @@ export function PaintingCard({
           {/* The glow is a sibling, not a filter on the image, so the paint
               keeps its own color at every interaction state. */}
           <div className="from-magenta/0 via-magenta/0 to-voltage/0 group-hover:from-magenta/25 group-hover:to-voltage/25 pointer-events-none absolute inset-0 z-10 bg-gradient-to-tr opacity-0 mix-blend-screen transition-opacity duration-300 group-hover:opacity-100" />
-          <Image
-            src={painting.image.src}
-            alt={painting.image.alt}
-            width={painting.image.width}
-            height={painting.image.height}
-            priority={priority}
-            sizes="(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 92vw"
-            className="size-full object-contain transition-transform duration-500 ease-out-quart group-hover:scale-105"
-          />
+          {photo ? (
+            <Image
+              src={photoUrl(photo)}
+              alt={photo.alt || painting.title}
+              width={photo.width}
+              height={photo.height}
+              priority={priority}
+              sizes="(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 92vw"
+              className="ease-out-quart size-full object-contain transition-transform duration-500 group-hover:scale-105"
+            />
+          ) : (
+            <span className="text-muted-foreground grid size-full place-items-center">
+              <ImageOff className="size-8" />
+            </span>
+          )}
           <div className="absolute top-3 left-3 z-20">
-            <StatusBadge status={painting.status} />
+            <StatusBadge availability={painting.availability} />
           </div>
         </div>
 
@@ -53,7 +62,9 @@ export function PaintingCard({
             {painting.title}
           </h3>
           <p className="text-foreground-secondary font-mono text-sm tabular-nums">
-            {painting.status === 'sold' ? '—' : formatPrice(painting.priceCents)}
+            {painting.availability === 'available' || painting.availability === 'on_hold'
+              ? formatPrice(painting.priceCents)
+              : '—'}
           </p>
         </div>
         <p className="text-muted-foreground mt-1 font-mono text-xs tracking-wide">

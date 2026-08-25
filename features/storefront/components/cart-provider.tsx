@@ -9,6 +9,8 @@ import {
   useSyncExternalStore,
 } from 'react';
 
+import type { Painting } from '@/lib/paintings/schema';
+
 const STORAGE_KEY = 'voltage-reef:held';
 
 /** Stable empty snapshot: the server has no storage, and returning a fresh []
@@ -73,6 +75,8 @@ function write(next: readonly string[]): void {
 interface CartValue {
   /** Ids of the pieces currently held, oldest first. */
   held: readonly string[];
+  /** The catalog, so the sheet can resolve held ids without its own fetch. */
+  paintings: Painting[];
   isHeld: (paintingId: string) => boolean;
   hold: (paintingId: string) => void;
   release: (paintingId: string) => void;
@@ -92,7 +96,13 @@ const CartContext = createContext<CartValue | null>(null);
  * useSyncExternalStore so the server renders the empty list, hydration matches,
  * and the stored holds arrive on the first client snapshot.
  */
-export function CartProvider({ children }: { children: React.ReactNode }) {
+export function CartProvider({
+  paintings,
+  children,
+}: {
+  paintings: Painting[];
+  children: React.ReactNode;
+}) {
   const held = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
   const [isOpen, setOpen] = useState(false);
 
@@ -111,6 +121,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const value = useMemo<CartValue>(
     () => ({
       held,
+      paintings,
       isHeld: (paintingId: string) => held.includes(paintingId),
       hold,
       release,
@@ -118,7 +129,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       isOpen,
       setOpen,
     }),
-    [held, hold, release, clear, isOpen],
+    [held, paintings, hold, release, clear, isOpen],
   );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

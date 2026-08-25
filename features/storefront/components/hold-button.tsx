@@ -3,7 +3,7 @@
 import { Check, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import type { Painting } from '../schema';
+import type { Painting } from '@/lib/paintings/schema';
 import { useCart } from './cart-provider';
 
 /**
