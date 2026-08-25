@@ -30,7 +30,7 @@ export const AVAILABILITY_LABEL: Record<Availability, string> = {
   not_for_sale: 'Not for sale',
 };
 
-/** Only `available` can be added to the enquiry basket. */
+/** Only `available` can be added to the inquiry basket. */
 export function isPurchasable(availability: Availability): boolean {
   return availability === 'available';
 }

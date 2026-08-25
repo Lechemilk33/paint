@@ -4,11 +4,11 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { isSignedIn } from '@/lib/auth/session';
 import {
-  deleteEnquiry,
-  setEnquiryNotes,
-  setEnquiryStatus,
-} from '@/lib/enquiries/repository';
-import { enquiryStatusSchema } from '@/lib/enquiries/schema';
+  deleteInquiry,
+  setInquiryNotes,
+  setInquiryStatus,
+} from '@/lib/inquiries/repository';
+import { inquiryStatusSchema } from '@/lib/inquiries/schema';
 
 /** A server action is its own endpoint, so it re-checks rather than trusting
  *  the gate that already turned unauthenticated requests away. */
@@ -19,39 +19,39 @@ async function requireAdmin(): Promise<void> {
 }
 
 function revalidateInbox(id?: string): void {
-  revalidatePath('/admin/enquiries');
+  revalidatePath('/admin/inquiries');
   revalidatePath('/admin');
-  if (id) revalidatePath(`/admin/enquiries/${id}`);
+  if (id) revalidatePath(`/admin/inquiries/${id}`);
 }
 
-export async function setEnquiryStatusAction(formData: FormData): Promise<void> {
+export async function setInquiryStatusAction(formData: FormData): Promise<void> {
   await requireAdmin();
 
   const id = String(formData.get('id') ?? '');
-  const status = enquiryStatusSchema.safeParse(formData.get('status'));
+  const status = inquiryStatusSchema.safeParse(formData.get('status'));
   if (!id || !status.success) return;
 
-  await setEnquiryStatus(id, status.data);
+  await setInquiryStatus(id, status.data);
   revalidateInbox(id);
 }
 
-export async function setEnquiryNotesAction(formData: FormData): Promise<void> {
+export async function setInquiryNotesAction(formData: FormData): Promise<void> {
   await requireAdmin();
 
   const id = String(formData.get('id') ?? '');
   if (!id) return;
 
-  await setEnquiryNotes(id, String(formData.get('notes') ?? ''));
+  await setInquiryNotes(id, String(formData.get('notes') ?? ''));
   revalidateInbox(id);
 }
 
-export async function deleteEnquiryAction(formData: FormData): Promise<void> {
+export async function deleteInquiryAction(formData: FormData): Promise<void> {
   await requireAdmin();
 
   const id = String(formData.get('id') ?? '');
   if (!id) return;
 
-  await deleteEnquiry(id);
+  await deleteInquiry(id);
   revalidateInbox();
-  redirect('/admin/enquiries');
+  redirect('/admin/inquiries');
 }

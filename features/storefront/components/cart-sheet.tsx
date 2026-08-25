@@ -14,7 +14,7 @@ import {
   SheetTitle,
 } from '@/components/ui/sheet';
 import { photoUrl, primaryPhoto, type Painting } from '@/lib/paintings/schema';
-import { EnquiryForm } from '@/features/enquiries/components/enquiry-form';
+import { InquiryForm } from '@/features/inquiries/components/inquiry-form';
 import { formatDimensions, formatPrice } from '../format';
 import { useCart } from './cart-provider';
 import { SpikeRule } from './spike-rule';
@@ -61,7 +61,7 @@ function CartContents({
         <ShoppingBag aria-hidden="true" className="text-voltage size-6" />
         <p className="font-poster text-lg font-extrabold">Nothing held yet</p>
         <p className="text-muted-foreground text-sm">
-          Put a piece on hold and it collects here, ready to send over as one enquiry.
+          Put a piece on hold and it collects here, ready to send over as one inquiry.
         </p>
       </div>
     );
@@ -123,11 +123,11 @@ function CartContents({
           </>
         )}
 
-        {/* The enquiry is the checkout. Nothing here takes payment, so the
+        {/* The inquiry is the checkout. Nothing here takes payment, so the
             handoff is a message naming the pieces - sent through the studio's
             own inbox rather than thrown at a mail client, which means it is
             recorded whether or not the visitor has mail set up on this device. */}
-        <EnquiryForm
+        <InquiryForm
           kind="purchase"
           paintings={heldPaintings.map((painting) => ({
             id: painting.id,
@@ -135,7 +135,7 @@ function CartContents({
             slug: painting.slug,
             priceCents: painting.priceCents,
           }))}
-          submitLabel="Send enquiry"
+          submitLabel="Send inquiry"
           onSent={onSent}
           className="gap-4"
         />

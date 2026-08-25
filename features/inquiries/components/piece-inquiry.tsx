@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import type { Painting } from '@/lib/paintings/schema';
-import { EnquiryForm } from './enquiry-form';
+import { InquiryForm } from './inquiry-form';
 
 /**
  * "Ask about this piece", inline on the painting's own page.
@@ -14,7 +14,7 @@ import { EnquiryForm } from './enquiry-form';
  * keeps the painting on screen while they write, and leaves the form
  * linkable at #ask.
  */
-export function PieceEnquiry({ painting }: { painting: Painting }) {
+export function PieceInquiry({ painting }: { painting: Painting }) {
   const [isOpen, setOpen] = useState(false);
 
   const snapshot = [
@@ -51,7 +51,7 @@ export function PieceEnquiry({ painting }: { painting: Painting }) {
       <p className="text-muted-foreground mb-6 text-sm">
         Condition, framing, shipping, whether something similar can be painted - anything.
       </p>
-      <EnquiryForm kind="piece" paintings={snapshot} submitLabel="Send question" />
+      <InquiryForm kind="piece" paintings={snapshot} submitLabel="Send question" />
     </section>
   );
 }

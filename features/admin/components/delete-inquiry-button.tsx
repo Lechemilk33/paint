@@ -13,15 +13,15 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
-import { deleteEnquiryAction } from '../enquiry-actions';
+import { deleteInquiryAction } from '../inquiry-actions';
 
 /** Deleting loses the only record of what someone asked for, so it confirms
  *  and names them. Archiving is the reversible option and is one tap away. */
-export function DeleteEnquiryButton({
-  enquiryId,
+export function DeleteInquiryButton({
+  inquiryId,
   name,
 }: {
-  enquiryId: string;
+  inquiryId: string;
   name: string;
 }) {
   return (
@@ -34,7 +34,7 @@ export function DeleteEnquiryButton({
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete this enquiry from {name}?</AlertDialogTitle>
+          <AlertDialogTitle>Delete this inquiry from {name}?</AlertDialogTitle>
           <AlertDialogDescription>
             The message, their contact details and any notes go with it, and this cannot be undone.
             To get it out of the way without losing it, archive it instead.
@@ -42,8 +42,8 @@ export function DeleteEnquiryButton({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Keep it</AlertDialogCancel>
-          <form action={deleteEnquiryAction}>
-            <input type="hidden" name="id" value={enquiryId} />
+          <form action={deleteInquiryAction}>
+            <input type="hidden" name="id" value={inquiryId} />
             <AlertDialogAction type="submit">Delete</AlertDialogAction>
           </form>
         </AlertDialogFooter>

@@ -2,9 +2,9 @@
 
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
-import { createEnquiry } from '@/lib/enquiries/repository';
-import { enquiryPaintingSchema, enquirySubmissionSchema } from '@/lib/enquiries/schema';
-import type { EnquiryFormState } from './form-state';
+import { createInquiry } from '@/lib/inquiries/repository';
+import { inquiryPaintingSchema, inquirySubmissionSchema } from '@/lib/inquiries/schema';
+import type { InquiryFormState } from './form-state';
 
 /**
  * The honeypot. A field no human ever sees, and so never fills in; the crude
@@ -51,18 +51,18 @@ function echo(formData: FormData): Record<string, string> {
 }
 
 /**
- * Receives an enquiry from any of the three public entry points.
+ * Receives an inquiry from any of the three public entry points.
  *
- * The pieces an enquiry refers to arrive as a JSON blob in a hidden field
+ * The pieces an inquiry refers to arrive as a JSON blob in a hidden field
  * rather than as ids to look up, because the browser is not trusted to name a
  * price: the field is parsed and then, for anything with an id, overwritten
  * from the catalog. What a visitor sends can only ever decide *which* pieces
  * are attached, never what they cost.
  */
-export async function submitEnquiryAction(
-  _prev: EnquiryFormState,
+export async function submitInquiryAction(
+  _prev: InquiryFormState,
   formData: FormData,
-): Promise<EnquiryFormState> {
+): Promise<InquiryFormState> {
   const values = echo(formData);
 
   // Silently accept and discard: telling a bot it was caught teaches it.
@@ -92,7 +92,7 @@ export async function submitEnquiryAction(
     paintings = [];
   }
 
-  const parsed = enquirySubmissionSchema.safeParse({
+  const parsed = inquirySubmissionSchema.safeParse({
     kind: formData.get('kind'),
     name: formData.get('name'),
     email: formData.get('email'),
@@ -101,7 +101,7 @@ export async function submitEnquiryAction(
     size: formData.get('size') ?? '',
     budget: formData.get('budget') || undefined,
     timeframe: formData.get('timeframe') || undefined,
-    paintings: enquiryPaintingSchema.array().catch([]).parse(paintings),
+    paintings: inquiryPaintingSchema.array().catch([]).parse(paintings),
   });
 
   if (!parsed.success) {
@@ -130,18 +130,18 @@ export async function submitEnquiryAction(
   }
 
   try {
-    const enquiry = await createEnquiry({ ...parsed.data, paintings: verified });
-    revalidatePath('/admin/enquiries');
+    const inquiry = await createInquiry({ ...parsed.data, paintings: verified });
+    revalidatePath('/admin/inquiries');
     revalidatePath('/admin');
     return {
       status: 'sent',
       error: null,
       fieldErrors: {},
       values: {},
-      reference: enquiry.reference,
+      reference: inquiry.reference,
     };
   } catch (cause) {
-    console.error('Could not store enquiry', cause);
+    console.error('Could not store inquiry', cause);
     return {
       status: 'error',
       error: 'Something went wrong at this end and the message was not saved. Please try again.',

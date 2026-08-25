@@ -104,7 +104,7 @@ export function StudioForm({ studio }: { studio: Studio }) {
         <Field
           name="contactEmail"
           label="Contact email"
-          hint="Shown in the footer and used as the reply-to on enquiries."
+          hint="Shown in the footer and used as the reply-to on inquiries."
           error={err('contactEmail')}
         >
           <Input id="contactEmail" name="contactEmail" type="email" defaultValue={studio.contactEmail} />

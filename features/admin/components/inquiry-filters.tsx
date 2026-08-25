@@ -3,11 +3,11 @@
 import { useRouter, useSearchParams } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import {
-  ENQUIRY_KIND_LABEL,
-  ENQUIRY_STATUS_LABEL,
-  enquiryKindSchema,
-  enquiryStatusSchema,
-} from '@/lib/enquiries/schema';
+  INQUIRY_KIND_LABEL,
+  INQUIRY_STATUS_LABEL,
+  inquiryKindSchema,
+  inquiryStatusSchema,
+} from '@/lib/inquiries/schema';
 
 /**
  * Inbox filters, held in the URL rather than in component state.
@@ -42,7 +42,7 @@ function Chip({
   );
 }
 
-export function EnquiryFilters() {
+export function InquiryFilters() {
   const router = useRouter();
   const params = useSearchParams();
   const status = params.get('status');
@@ -53,7 +53,7 @@ export function EnquiryFilters() {
     if (value === null || next.get(key) === value) next.delete(key);
     else next.set(key, value);
     const query = next.toString();
-    router.replace(query ? `/admin/enquiries?${query}` : '/admin/enquiries', { scroll: false });
+    router.replace(query ? `/admin/inquiries?${query}` : '/admin/inquiries', { scroll: false });
   }
 
   return (
@@ -62,9 +62,9 @@ export function EnquiryFilters() {
         <Chip isActive={status === null} onClick={() => apply('status', null)}>
           All
         </Chip>
-        {enquiryStatusSchema.options.map((option) => (
+        {inquiryStatusSchema.options.map((option) => (
           <Chip key={option} isActive={status === option} onClick={() => apply('status', option)}>
-            {ENQUIRY_STATUS_LABEL[option]}
+            {INQUIRY_STATUS_LABEL[option]}
           </Chip>
         ))}
       </div>
@@ -72,9 +72,9 @@ export function EnquiryFilters() {
         <Chip isActive={kind === null} onClick={() => apply('kind', null)}>
           Any kind
         </Chip>
-        {enquiryKindSchema.options.map((option) => (
+        {inquiryKindSchema.options.map((option) => (
           <Chip key={option} isActive={kind === option} onClick={() => apply('kind', option)}>
-            {ENQUIRY_KIND_LABEL[option]}
+            {INQUIRY_KIND_LABEL[option]}
           </Chip>
         ))}
       </div>

@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import { ExternalLink, Inbox, LogOut, Palette, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { listEnquiries } from '@/lib/enquiries/repository';
-import { countUnread } from '@/lib/enquiries/schema';
+import { listInquiries } from '@/lib/inquiries/repository';
+import { countUnread } from '@/lib/inquiries/schema';
 import { signOut } from '../auth-actions';
 
 /**
@@ -14,7 +14,7 @@ import { signOut } from '../auth-actions';
  * read and never a stale count.
  */
 export async function AdminHeader() {
-  const unread = countUnread(await listEnquiries());
+  const unread = countUnread(await listInquiries());
 
   return (
     <header className="border-border bg-card sticky top-0 z-10 border-b">
@@ -32,9 +32,9 @@ export async function AdminHeader() {
         </Button>
 
         <Button asChild variant="ghost" size="sm">
-          <Link href="/admin/enquiries">
+          <Link href="/admin/inquiries">
             <Inbox />
-            <span className="hidden sm:inline">Enquiries</span>
+            <span className="hidden sm:inline">Inquiries</span>
             {unread > 0 ? (
               <span className="bg-primary text-primary-foreground ml-0.5 rounded-full px-1.5 py-0.5 text-[0.6875rem] leading-none font-semibold tabular-nums">
                 {unread}
@@ -42,7 +42,7 @@ export async function AdminHeader() {
             ) : null}
             {unread > 0 ? (
               <span className="sr-only">
-                {unread === 1 ? '1 unread enquiry' : `${unread} unread enquiries`}
+                {unread === 1 ? '1 unread inquiry' : `${unread} unread inquiries`}
               </span>
             ) : null}
           </Link>

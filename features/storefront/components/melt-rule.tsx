@@ -22,8 +22,8 @@ const WAVE = Array.from({ length: LOBES * 2 }, (_, i) => {
  * The counterpart to the spike rule: where that one is all hard contour, this
  * one melts.
  *
- * Psychedelic form is characterised as much by fluid, transforming contour as
- * by colour, and a shop built only from zigzags reads as aggressive rather than
+ * Psychedelic form is characterized as much by fluid, transforming contour as
+ * by color, and a shop built only from zigzags reads as aggressive rather than
  * hallucinatory. The wave drifts sideways so the contour never quite settles -
  * held still under prefers-reduced-motion, where a permanently creeping line is
  * exactly the wrong thing.

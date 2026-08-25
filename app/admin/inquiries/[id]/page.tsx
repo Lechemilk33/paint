@@ -6,22 +6,22 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { AdminHeader } from '@/features/admin/components/admin-header';
-import { DeleteEnquiryButton } from '@/features/admin/components/delete-enquiry-button';
-import { EnquiryStatusBar } from '@/features/admin/components/enquiry-status-bar';
-import { setEnquiryNotesAction } from '@/features/admin/enquiry-actions';
-import { getEnquiry, markEnquiryOpened } from '@/lib/enquiries/repository';
+import { DeleteInquiryButton } from '@/features/admin/components/delete-inquiry-button';
+import { InquiryStatusBar } from '@/features/admin/components/inquiry-status-bar';
+import { setInquiryNotesAction } from '@/features/admin/inquiry-actions';
+import { getInquiry, markInquiryOpened } from '@/lib/inquiries/repository';
 import {
   BUDGET_LABEL,
-  ENQUIRY_KIND_LABEL,
+  INQUIRY_KIND_LABEL,
   TIMEFRAME_LABEL,
-} from '@/lib/enquiries/schema';
+} from '@/lib/inquiries/schema';
 
 export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const enquiry = await getEnquiry(id);
-  return { title: enquiry ? `${enquiry.reference} — Voltage Reef studio` : 'Not found' };
+  const inquiry = await getInquiry(id);
+  return { title: inquiry ? `${inquiry.reference} — Voltage Reef studio` : 'Not found' };
 }
 
 const dateFormatter = new Intl.DateTimeFormat('en-US', {
@@ -44,18 +44,18 @@ function Detail({ term, children }: { term: string; children: React.ReactNode })
   );
 }
 
-export default async function EnquiryPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function InquiryPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const enquiry = await getEnquiry(id);
-  if (!enquiry) notFound();
+  const inquiry = await getInquiry(id);
+  if (!inquiry) notFound();
 
   // Reading it is what makes it read. Only `new` moves, so this never walks a
-  // replied enquiry backwards.
-  await markEnquiryOpened(enquiry.id);
+  // replied inquiry backwards.
+  await markInquiryOpened(inquiry.id);
 
-  const subject = `Re: your ${ENQUIRY_KIND_LABEL[enquiry.kind].toLowerCase()} — ${enquiry.reference}`;
-  const greeting = `Hi ${enquiry.name.split(' ')[0]},\n\n`;
-  const replyHref = `mailto:${encodeURIComponent(enquiry.email)}?subject=${encodeURIComponent(
+  const subject = `Re: your ${INQUIRY_KIND_LABEL[inquiry.kind].toLowerCase()} — ${inquiry.reference}`;
+  const greeting = `Hi ${inquiry.name.split(' ')[0]},\n\n`;
+  const replyHref = `mailto:${encodeURIComponent(inquiry.email)}?subject=${encodeURIComponent(
     subject,
   )}&body=${encodeURIComponent(greeting)}`;
 
@@ -64,24 +64,24 @@ export default async function EnquiryPage({ params }: { params: Promise<{ id: st
       <AdminHeader />
       <main className="mx-auto max-w-3xl px-4 py-8 sm:px-6">
         <Button asChild variant="ghost" size="sm" className="-ml-2 mb-4">
-          <Link href="/admin/enquiries">
+          <Link href="/admin/inquiries">
             <ArrowLeft />
-            Enquiries
+            Inquiries
           </Link>
         </Button>
 
         <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0">
             <div className="mb-1.5 flex flex-wrap items-center gap-2">
-              <Badge variant="outline">{ENQUIRY_KIND_LABEL[enquiry.kind]}</Badge>
-              <span className="text-muted-foreground font-mono text-xs">{enquiry.reference}</span>
+              <Badge variant="outline">{INQUIRY_KIND_LABEL[inquiry.kind]}</Badge>
+              <span className="text-muted-foreground font-mono text-xs">{inquiry.reference}</span>
             </div>
-            <h1 className="text-2xl font-semibold tracking-tight">{enquiry.name}</h1>
+            <h1 className="text-2xl font-semibold tracking-tight">{inquiry.name}</h1>
             <a
-              href={`mailto:${enquiry.email}`}
+              href={`mailto:${inquiry.email}`}
               className="text-primary text-sm hover:underline"
             >
-              {enquiry.email}
+              {inquiry.email}
             </a>
           </div>
           <Button asChild>
@@ -92,7 +92,7 @@ export default async function EnquiryPage({ params }: { params: Promise<{ id: st
           </Button>
         </div>
 
-        <EnquiryStatusBar enquiryId={enquiry.id} status={enquiry.status} />
+        <InquiryStatusBar inquiryId={inquiry.id} status={inquiry.status} />
 
         <Separator className="my-6" />
 
@@ -101,33 +101,33 @@ export default async function EnquiryPage({ params }: { params: Promise<{ id: st
           {/* Sender-supplied text. Rendered as plain text inside a paragraph -
               never as markup - so nothing a stranger types can become HTML. */}
           <p className="bg-muted rounded-lg p-4 text-sm leading-relaxed whitespace-pre-wrap">
-            {enquiry.message}
+            {inquiry.message}
           </p>
         </section>
 
-        {enquiry.kind === 'commission' ? (
+        {inquiry.kind === 'commission' ? (
           <section className="mt-6">
             <h2 className="mb-3 text-sm font-semibold">The brief</h2>
             <dl className="grid gap-4 sm:grid-cols-2">
-              <Detail term="Wants painted">{enquiry.subject || '—'}</Detail>
-              <Detail term="Size in mind">{enquiry.size || 'No preference'}</Detail>
+              <Detail term="Wants painted">{inquiry.subject || '—'}</Detail>
+              <Detail term="Size in mind">{inquiry.size || 'No preference'}</Detail>
               <Detail term="Budget">
-                {enquiry.budget ? BUDGET_LABEL[enquiry.budget] : 'No preference'}
+                {inquiry.budget ? BUDGET_LABEL[inquiry.budget] : 'No preference'}
               </Detail>
               <Detail term="Timeframe">
-                {enquiry.timeframe ? TIMEFRAME_LABEL[enquiry.timeframe] : 'No preference'}
+                {inquiry.timeframe ? TIMEFRAME_LABEL[inquiry.timeframe] : 'No preference'}
               </Detail>
             </dl>
           </section>
         ) : null}
 
-        {enquiry.paintings.length > 0 ? (
+        {inquiry.paintings.length > 0 ? (
           <section className="mt-6">
             <h2 className="mb-3 text-sm font-semibold">
-              {enquiry.paintings.length === 1 ? 'The piece' : 'The pieces'}
+              {inquiry.paintings.length === 1 ? 'The piece' : 'The pieces'}
             </h2>
             <ul className="grid gap-2">
-              {enquiry.paintings.map((painting) => (
+              {inquiry.paintings.map((painting) => (
                 <li
                   key={painting.id}
                   className="border-border flex items-center justify-between gap-3 rounded-lg border p-3"
@@ -137,7 +137,7 @@ export default async function EnquiryPage({ params }: { params: Promise<{ id: st
                     {/* Price as it stood when they asked, which is what they
                         believe they are being quoted. */}
                     <p className="text-muted-foreground text-xs">
-                      {priceFormatter.format(painting.priceCents / 100)} at time of enquiry
+                      {priceFormatter.format(painting.priceCents / 100)} at time of inquiry
                     </p>
                   </div>
                   <Button asChild variant="outline" size="sm">
@@ -153,14 +153,14 @@ export default async function EnquiryPage({ params }: { params: Promise<{ id: st
 
         <section className="mt-6">
           <h2 className="mb-3 text-sm font-semibold">Studio notes</h2>
-          <form action={setEnquiryNotesAction} className="flex flex-col items-start gap-2">
-            <input type="hidden" name="id" value={enquiry.id} />
+          <form action={setInquiryNotesAction} className="flex flex-col items-start gap-2">
+            <input type="hidden" name="id" value={inquiry.id} />
             <Textarea
               name="notes"
               rows={3}
-              defaultValue={enquiry.notes}
+              defaultValue={inquiry.notes}
               placeholder="What you quoted, what you agreed, where it got to."
-              aria-label="Private notes about this enquiry"
+              aria-label="Private notes about this inquiry"
             />
             <Button type="submit" variant="outline" size="sm">
               Save notes
@@ -171,13 +171,13 @@ export default async function EnquiryPage({ params }: { params: Promise<{ id: st
         <Separator className="my-6" />
 
         <div className="text-muted-foreground flex flex-wrap items-center justify-between gap-3 text-xs">
-          <span>Received {dateFormatter.format(new Date(enquiry.createdAt))}</span>
-          <DeleteEnquiryButton enquiryId={enquiry.id} name={enquiry.name} />
+          <span>Received {dateFormatter.format(new Date(inquiry.createdAt))}</span>
+          <DeleteInquiryButton inquiryId={inquiry.id} name={inquiry.name} />
         </div>
 
         <p className="text-muted-foreground mt-6 text-xs">
-          Replying opens your mail app addressed to {enquiry.name.split(' ')[0]}, with{' '}
-          {enquiry.reference} in the subject. Mark it replied afterwards so the inbox stays honest.
+          Replying opens your mail app addressed to {inquiry.name.split(' ')[0]}, with{' '}
+          {inquiry.reference} in the subject. Mark it replied afterwards so the inbox stays honest.
         </p>
       </main>
     </>

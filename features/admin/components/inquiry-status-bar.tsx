@@ -2,35 +2,35 @@
 
 import { cn } from '@/lib/utils';
 import {
-  ENQUIRY_STATUS_LABEL,
-  enquiryStatusSchema,
-  type EnquiryStatus,
-} from '@/lib/enquiries/schema';
-import { setEnquiryStatusAction } from '../enquiry-actions';
+  INQUIRY_STATUS_LABEL,
+  inquiryStatusSchema,
+  type InquiryStatus,
+} from '@/lib/inquiries/schema';
+import { setInquiryStatusAction } from '../inquiry-actions';
 
 /**
- * The enquiry's state, as a row of one-tap buttons rather than a dropdown.
+ * The inquiry's state, as a row of one-tap buttons rather than a dropdown.
  *
  * There are four states and the whole point is to change them quickly while
  * working through an inbox; a select would put two interactions between the
  * studio and "replied". Each button is its own form, so this works before
  * hydration too.
  */
-export function EnquiryStatusBar({
-  enquiryId,
+export function InquiryStatusBar({
+  inquiryId,
   status,
 }: {
-  enquiryId: string;
-  status: EnquiryStatus;
+  inquiryId: string;
+  status: InquiryStatus;
 }) {
   return (
     <div className="flex flex-wrap items-center gap-2">
       <span className="text-muted-foreground text-xs">Status</span>
-      {enquiryStatusSchema.options.map((option) => {
+      {inquiryStatusSchema.options.map((option) => {
         const isCurrent = option === status;
         return (
-          <form key={option} action={setEnquiryStatusAction}>
-            <input type="hidden" name="id" value={enquiryId} />
+          <form key={option} action={setInquiryStatusAction}>
+            <input type="hidden" name="id" value={inquiryId} />
             <input type="hidden" name="status" value={option} />
             <button
               type="submit"
@@ -43,7 +43,7 @@ export function EnquiryStatusBar({
                   : 'border-border text-muted-foreground hover:text-foreground',
               )}
             >
-              {ENQUIRY_STATUS_LABEL[option]}
+              {INQUIRY_STATUS_LABEL[option]}
             </button>
           </form>
         );

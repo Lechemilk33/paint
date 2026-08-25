@@ -19,7 +19,7 @@ export const studioSchema = z.object({
   tagline: z.string().trim().max(160).default(''),
   /** The About section on the store home. Rendered only when written. */
   about: z.string().trim().max(2000).default(''),
-  /** Where enquiries are answered from. Shown only when set. */
+  /** Where inquiries are answered from. Shown only when set. */
   contactEmail: z.string().trim().max(254).default(''),
   /** Framing, packing and shipping, in the studio's own words. */
   shipping: z.string().trim().max(1000).default(''),

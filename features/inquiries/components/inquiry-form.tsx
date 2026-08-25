@@ -14,11 +14,11 @@ import {
   TIMEFRAME_LABEL,
   budgetSchema,
   timeframeSchema,
-  type EnquiryKind,
-  type EnquiryPainting,
-} from '@/lib/enquiries/schema';
-import { submitEnquiryAction } from '../actions';
-import { EMPTY_ENQUIRY_STATE, SENT_COPY, type EnquiryFormState } from '../form-state';
+  type InquiryKind,
+  type InquiryPainting,
+} from '@/lib/inquiries/schema';
+import { submitInquiryAction } from '../actions';
+import { EMPTY_INQUIRY_STATE, SENT_COPY, type InquiryFormState } from '../form-state';
 
 /** Shared field chrome: label, optional hint, control, and one error slot. */
 function Field({
@@ -89,23 +89,23 @@ function SubmitButton({ label }: { label: string }) {
  * The form is a plain POST to a server action, so it works before hydration and
  * keeps working if the JavaScript never arrives.
  */
-export function EnquiryForm({
+export function InquiryForm({
   kind,
   paintings = [],
   submitLabel,
   onSent,
   className,
 }: {
-  kind: EnquiryKind;
-  paintings?: EnquiryPainting[];
+  kind: InquiryKind;
+  paintings?: InquiryPainting[];
   submitLabel?: string;
   /** Called once accepted, so a container can clear a cart or close a panel. */
   onSent?: () => void;
   className?: string;
 }) {
-  const [state, formAction] = useActionState<EnquiryFormState, FormData>(
-    submitEnquiryAction,
-    EMPTY_ENQUIRY_STATE,
+  const [state, formAction] = useActionState<InquiryFormState, FormData>(
+    submitInquiryAction,
+    EMPTY_INQUIRY_STATE,
   );
   const formId = useId();
   const errorRef = useRef<HTMLDivElement>(null);
@@ -321,7 +321,7 @@ export function EnquiryForm({
         label="Message"
         hint={
           kind === 'commission'
-            ? 'Anything that helps: colours you love, where it will hang, references you have.'
+            ? 'Anything that helps: colors you love, where it will hang, references you have.'
             : undefined
         }
         error={err('message')}

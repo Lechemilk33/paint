@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { EnquiryForm } from '@/features/enquiries/components/enquiry-form';
+import { InquiryForm } from '@/features/inquiries/components/inquiry-form';
 import { MeltRule } from '@/features/storefront/components/melt-rule';
 import { SpikeRule } from '@/features/storefront/components/spike-rule';
 import { getStudio } from '@/lib/studio/repository';
@@ -33,7 +33,7 @@ export default async function CommissionPage() {
 
       {studio.responseTime ? (
         <p className="text-muted-foreground tracking-label mt-4 font-mono text-xs uppercase">
-          Enquiries answered {studio.responseTime}
+          Inquiries answered {studio.responseTime}
         </p>
       ) : null}
 
@@ -42,7 +42,7 @@ export default async function CommissionPage() {
       </div>
 
       <div className="mt-10">
-        <EnquiryForm kind="commission" submitLabel="Send commission request" />
+        <InquiryForm kind="commission" submitLabel="Send commission request" />
       </div>
     </div>
   );

@@ -1,7 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { PieceEnquiry } from '@/features/enquiries/components/piece-enquiry';
+import { PieceInquiry } from '@/features/inquiries/components/piece-inquiry';
 import { type Painting } from '@/lib/paintings/schema';
 import { useCart } from './cart-provider';
 import { HoldButton } from './hold-button';
@@ -29,7 +29,7 @@ export function PaintingPurchase({ painting }: { painting: Painting }) {
             </Button>
           ) : null}
         </div>
-        <PieceEnquiry painting={painting} />
+        <PieceInquiry painting={painting} />
       </div>
     );
   }
@@ -44,7 +44,7 @@ export function PaintingPurchase({ painting }: { painting: Painting }) {
   return (
     <div className="flex flex-col items-start gap-4">
       <p className="text-foreground-secondary text-sm">{message}</p>
-      <PieceEnquiry painting={painting} />
+      <PieceInquiry painting={painting} />
     </div>
   );
 }

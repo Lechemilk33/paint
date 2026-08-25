@@ -35,7 +35,7 @@ function usePrefersReducedMotion(): boolean {
  * than slid: these paintings are dense, saturated and edge-to-edge, and sliding
  * two of them past each other is visual noise on top of visual noise. A dissolve
  * lets one image resolve out of the other, which is closer to how the work
- * itself behaves - colour arriving before the form does.
+ * itself behaves - color arriving before the form does.
  *
  * The whole frame is a link to whichever piece is showing. Autoplay stops on
  * hover, on keyboard focus, when the tab is hidden, and entirely for anyone who
@@ -95,7 +95,7 @@ export function HeroCarousel({ paintings }: { paintings: Painting[] }) {
     >
       <div className="relative">
         {/* The bloom behind the canvas picks up the piece's own energy without
-            touching its colour: a filter on the image would edit the work. */}
+            touching its color: a filter on the image would edit the work. */}
         <div
           aria-hidden="true"
           className="from-magenta/40 via-ultra/30 to-voltage/40 absolute -inset-6 -z-10 bg-gradient-to-tr blur-3xl transition-opacity duration-1000"

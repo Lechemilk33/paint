@@ -99,7 +99,7 @@ export async function updatePainting(id: string, input: PaintingInput): Promise<
   const updated: Painting = {
     ...existing,
     ...input,
-    // Retitling moves the piece's public URL. That is the intended behaviour -
+    // Retitling moves the piece's public URL. That is the intended behavior -
     // the slug should follow the title - but it does break any link already
     // shared for the old one.
     slug:

@@ -15,7 +15,7 @@ import { HeroCarousel } from './hero-carousel';
  * and the studio's own line takes its place when there is one.
  *
  * The canvases are the only saturated thing on screen at rest. That is the
- * whole idea: psychedelic realism puts impossible colour on a truthfully drawn
+ * whole idea: psychedelic realism puts impossible color on a truthfully drawn
  * subject, so the page stays near-black and lets the paint do the shouting.
  */
 export function StoreHero({

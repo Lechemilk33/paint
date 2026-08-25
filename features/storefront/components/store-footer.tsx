@@ -5,7 +5,7 @@ import { SpikeRule } from './spike-rule';
 
 /**
  * Every line here is conditional. The footer previously stated how work was
- * stretched, framed and shipped, and how fast enquiries were answered - none
+ * stretched, framed and shipped, and how fast inquiries were answered - none
  * of which anyone had said. Now it shows what the studio has written and
  * nothing else.
  */
@@ -39,7 +39,7 @@ export function StoreFooter({ studio }: { studio: Studio }) {
           ) : null}
           {studio.responseTime ? (
             <p className="text-muted-foreground tracking-label font-mono text-xs uppercase">
-              Enquiries answered {studio.responseTime}
+              Inquiries answered {studio.responseTime}
             </p>
           ) : null}
         </div>

@@ -1,4 +1,4 @@
-import type { EnquiryKind } from '@/lib/enquiries/schema';
+import type { InquiryKind } from '@/lib/inquiries/schema';
 
 /**
  * What a submission round-trip hands back to the form.
@@ -12,7 +12,7 @@ import type { EnquiryKind } from '@/lib/enquiries/schema';
  * Lives outside the actions module because a `'use server'` file may only
  * export async functions.
  */
-export interface EnquiryFormState {
+export interface InquiryFormState {
   status: 'idle' | 'error' | 'sent';
   /** Message shown above the form when the whole submission failed. */
   error: string | null;
@@ -23,7 +23,7 @@ export interface EnquiryFormState {
   reference: string | null;
 }
 
-export const EMPTY_ENQUIRY_STATE: EnquiryFormState = {
+export const EMPTY_INQUIRY_STATE: InquiryFormState = {
   status: 'idle',
   error: null,
   fieldErrors: {},
@@ -32,7 +32,7 @@ export const EMPTY_ENQUIRY_STATE: EnquiryFormState = {
 };
 
 /** Copy shown after a successful send, which differs by what was asked. */
-export const SENT_COPY: Record<EnquiryKind, { title: string; body: string }> = {
+export const SENT_COPY: Record<InquiryKind, { title: string; body: string }> = {
   commission: {
     title: 'Commission request sent',
     body: 'The studio will come back to you with questions, a price and a rough timeline. Commissions are usually answered within a week.',
@@ -42,7 +42,7 @@ export const SENT_COPY: Record<EnquiryKind, { title: string; body: string }> = {
     body: 'The studio will reply to you directly about this piece, usually within a week.',
   },
   purchase: {
-    title: 'Enquiry sent',
+    title: 'Inquiry sent',
     body: 'The studio will confirm what is still available and reply with payment and shipping, usually within a week.',
   },
 };
