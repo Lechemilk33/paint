@@ -4,8 +4,10 @@ import { Button } from '@/components/ui/button';
 import {
   AVAILABILITY_LABEL,
   EDITION_LABEL,
+  canBuyNow,
   type Painting,
 } from '@/lib/paintings/schema';
+import { stripeConfigured } from '@/lib/stripe/client';
 import type { Studio } from '@/lib/studio/schema';
 import { formatDimensions, formatPrice } from '../format';
 import { PaintingGallery } from './painting-gallery';
@@ -82,7 +84,10 @@ export function PaintingDetail({
               : AVAILABILITY_LABEL[painting.availability]}
           </p>
 
-          <PaintingPurchase painting={painting} />
+          {/* Decided here rather than in the client component: whether Stripe
+              has keys is a server fact, and a Buy button that cannot reach a
+              checkout is worse than no Buy button. */}
+          <PaintingPurchase painting={painting} canBuy={stripeConfigured() && canBuyNow(painting)} />
 
           <dl className="mt-2">
             <SpecRow label="Year" value={String(painting.year)} />

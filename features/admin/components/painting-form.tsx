@@ -202,6 +202,46 @@ export function PaintingForm({ painting }: { painting?: Painting }) {
         </div>
 
         <Field
+          name="shippingUsd"
+          label="Shipping (USD)"
+          hint="Added at checkout, on top of the price. Blank or zero means shipping is included."
+          error={err('shippingUsd')}
+        >
+          <Input
+            id="shippingUsd"
+            name="shippingUsd"
+            type="number"
+            step="0.01"
+            min="0"
+            inputMode="decimal"
+            defaultValue={painting ? (painting.shippingCents / 100).toFixed(2) : undefined}
+          />
+        </Field>
+
+        <div className="border-input space-y-1.5 rounded-md border p-4">
+          <div className="flex items-start gap-3">
+            <input
+              id="instantCheckout"
+              name="instantCheckout"
+              type="checkbox"
+              defaultChecked={painting?.instantCheckout ?? false}
+              className="border-input accent-primary mt-0.5 size-4 rounded"
+            />
+            <div className="space-y-1">
+              <Label htmlFor="instantCheckout" className="font-medium">
+                Let people buy this outright
+              </Label>
+              <p className="text-muted-foreground text-xs">
+                Adds a Buy button that takes payment by card on the spot. Leave this off for
+                anything you want to talk through first - those pieces still take inquiries, which
+                is what every piece does by default. Check the price and the shipping above before
+                you switch it on.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <Field
           name="framingShipping"
           label="Framing and shipping"
           hint="Only if this piece differs from your usual terms in Studio settings. Blank uses those."

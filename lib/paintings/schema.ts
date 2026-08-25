@@ -36,6 +36,20 @@ export function isPurchasable(availability: Availability): boolean {
 }
 
 /**
+ * Whether a piece can be paid for on the spot rather than asked about.
+ *
+ * Deliberately opt-in per painting instead of derived from price or edition.
+ * A canvas that needs crating, an international buyer, a piece the studio wants
+ * to talk through first - all of those are reasons to keep a piece on the
+ * inquiry path at any price, and only the artist knows which apply. It also
+ * means no piece becomes purchasable by accident: everything already in the
+ * catalog stays on the inquiry path until it is switched on deliberately.
+ */
+export function canBuyNow(painting: Pick<Painting, 'availability' | 'instantCheckout' | 'priceCents'>): boolean {
+  return painting.instantCheckout && painting.availability === 'available' && painting.priceCents > 0;
+}
+
+/**
  * A photograph of a painting. The bytes live in blob storage under `key`; this
  * record is the metadata the app needs to lay the image out without fetching
  * it first. `position` orders the gallery, and position 0 is the piece's
@@ -90,6 +104,23 @@ export const paintingInputSchema = z.object({
   story: z.string().trim().max(4000).default(''),
   edition: editionSchema,
   availability: availabilitySchema,
+  /**
+   * Flat shipping added at checkout, in cents. Art ships crated and insured,
+   * which no carrier API prices from dimensions, so the studio sets it per
+   * piece. Zero means shipping is included in the price.
+   */
+  shippingCents: z
+    .number()
+    .int()
+    .nonnegative('Shipping cannot be negative')
+    .max(10_000_000, 'That shipping cost looks like a typo')
+    .default(0),
+  /**
+   * Whether this piece can be bought outright. Defaults to false so a record
+   * written before checkout existed - or one still carrying a placeholder
+   * price - cannot be sold until the studio says so.
+   */
+  instantCheckout: z.boolean().default(false),
   /** Studio-only. Never rendered on the public site. */
   driveFolder: z.string().trim().default(''),
   notes: z.string().trim().default(''),
@@ -143,7 +174,15 @@ export function slugify(title: string): string {
  * these would be unreachable - Next resolves the static segment first - so the
  * catalog refuses them and appends a suffix instead.
  */
-export const RESERVED_SLUGS = new Set(['commission', 'about', 'contact', 'studio', 'cart']);
+export const RESERVED_SLUGS = new Set([
+  'commission',
+  'about',
+  'contact',
+  'studio',
+  'cart',
+  'order',
+  'gallery',
+]);
 
 /** Filter state for the catalog grid. `null` means "no filter applied". */
 export interface PaintingFilters {

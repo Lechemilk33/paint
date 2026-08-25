@@ -50,6 +50,7 @@ function readForm(formData: FormData) {
     return raw === '' ? Number.NaN : Number(raw);
   };
   const dollars = number('priceUsd');
+  const shippingDollars = number('shippingUsd');
 
   return {
     title: text('title'),
@@ -64,6 +65,12 @@ function readForm(formData: FormData) {
     story: text('story'),
     edition: text('edition'),
     availability: text('availability'),
+    // Blank shipping means included, not missing - so it becomes zero rather
+    // than the NaN that makes a blank price an error.
+    shippingCents: Number.isFinite(shippingDollars) ? Math.round(shippingDollars * 100) : 0,
+    // An unchecked box sends nothing at all, which is the only way HTML has of
+    // saying false.
+    instantCheckout: formData.get('instantCheckout') !== null,
     driveFolder: text('driveFolder'),
     notes: text('notes'),
   };
@@ -75,7 +82,7 @@ function toFieldErrors(error: z.ZodError): Record<string, string> {
     const key = String(issue.path[0] ?? '');
     // The price field is `priceUsd` in the DOM but `priceCents` in the schema;
     // map it back so the message lands on the input the person actually typed in.
-    const field = key === 'priceCents' ? 'priceUsd' : key;
+    const field = key === 'priceCents' ? 'priceUsd' : key === 'shippingCents' ? 'shippingUsd' : key;
     if (field && !fieldErrors[field]) fieldErrors[field] = issue.message;
   }
   return fieldErrors;
