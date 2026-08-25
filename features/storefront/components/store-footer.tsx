@@ -46,32 +46,35 @@ export function StoreFooter({ studio }: { studio: Studio }) {
       </div>
 
       {/*
-        The way back into the studio. Deliberately a printer's mark rather than
-        a labelled link: it sits on every public page, and a visitor reading
-        about a painting has no use for it. Quiet, not hidden - the admin is
-        gated in proxy.ts, so nothing here is holding a door shut, and it keeps
-        a real accessible name and a visible focus ring so it can still be
-        reached by keyboard or screen reader.
+        The way back into the studio. A colophon line rather than a labelled
+        button: it sits on every public page and a visitor reading about a
+        painting has no use for it, so it stays muted until looked at. It does
+        carry a word, though - a bare mark gave nothing to aim at, and something
+        nobody can find is not discreet, just broken.
+
+        Quiet, not hidden. The admin is gated in proxy.ts, so nothing here is
+        holding a door shut, and hiding it from assistive tech would cost real
+        accessibility while buying no security at all.
       */}
       <div className="mx-auto flex w-full max-w-7xl justify-end px-5 pb-10 sm:px-8">
         <Link
           href="/admin"
           rel="nofollow"
           aria-label="Studio admin"
-          title="Studio"
-          className="group focus-visible:ring-ring inline-flex size-6 items-center justify-center rounded-xs focus-visible:ring-2 focus-visible:outline-none"
+          className="group text-muted-foreground/70 hover:text-voltage focus-visible:text-voltage focus-visible:ring-ring tracking-label -m-2 inline-flex items-center gap-2 rounded-xs p-2 font-mono text-xs uppercase transition-colors focus-visible:ring-2 focus-visible:outline-none"
         >
           {/*
-            The same rotated square the header sets beside the wordmark, so it
-            reads as the site's own furniture rather than a stray glyph - and
-            unlike a text diamond it cannot fall back to a different shape in a
-            font that lacks it. The link box is 24px for a fingertip while the
-            mark itself stays 6px.
+            The same rotated square the header sets beside the wordmark, so the
+            pair reads as the site's own furniture. Drawn rather than typed: a
+            text diamond can fall back to a different shape in a font without
+            one. The negative margin lets the padding grow the tap target
+            without pushing the line off the footer's right edge.
           */}
           <span
             aria-hidden="true"
-            className="bg-muted-foreground/30 group-hover:bg-voltage group-focus-visible:bg-voltage size-1.5 rotate-45 transition-colors"
+            className="bg-muted-foreground/70 group-hover:bg-voltage group-focus-visible:bg-voltage size-2 rotate-45 transition-colors"
           />
+          Studio
         </Link>
       </div>
     </footer>
