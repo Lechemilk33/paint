@@ -1,15 +1,10 @@
-# Netlify build. This repo root is the app, so there is no base directory.
+# Netlify build. The repo root is the app, so there is no base directory.
+#
+# This is a server-rendered Next app: @netlify/plugin-nextjs turns the build
+# output into functions, so there is no publish directory to point at and no
+# redirect rule for `/` - app/page.tsx issues that redirect on the server.
 [build]
   command = "npm run build"
-  publish = "out"
 
 [build.environment]
   NODE_VERSION = "22"
-
-# The storefront lives at /store; send the bare domain there with a real 302.
-# (app/page.tsx also carries a meta-refresh fallback for other static hosts.)
-[[redirects]]
-  from = "/"
-  to = "/store/"
-  status = 302
-  force = true
