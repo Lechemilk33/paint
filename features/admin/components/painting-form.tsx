@@ -41,7 +41,9 @@ function Field({
 }) {
   return (
     <div className="space-y-1.5">
-      <Label htmlFor={name}>
+      {/* block rather than the primitive's flex, so a long label wraps as a
+          sentence instead of one word per line beside its required marker. */}
+      <Label htmlFor={name} className="block leading-tight">
         {label}
         {required ? <span className="text-destructive ml-0.5">*</span> : null}
       </Label>
@@ -200,6 +202,24 @@ export function PaintingForm({ painting }: { painting?: Painting }) {
             </select>
           </Field>
         </div>
+
+        <Field
+          name="printsAvailable"
+          label="Prints"
+          hint="Off by default. Turn it on only for pieces you are willing and able to reproduce."
+          error={err('printsAvailable')}
+        >
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              id="printsAvailable"
+              name="printsAvailable"
+              type="checkbox"
+              defaultChecked={painting?.printsAvailable ?? false}
+              className="accent-primary size-4"
+            />
+            Let visitors request a print of this piece
+          </label>
+        </Field>
 
         <Field
           name="framingShipping"

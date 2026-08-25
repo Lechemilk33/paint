@@ -13,7 +13,9 @@ import { getInquiry, markInquiryOpened } from '@/lib/inquiries/repository';
 import {
   BUDGET_LABEL,
   INQUIRY_KIND_LABEL,
+  PRINT_FINISH_LABEL,
   TIMEFRAME_LABEL,
+  isCommissionShaped,
 } from '@/lib/inquiries/schema';
 
 export const dynamic = 'force-dynamic';
@@ -52,6 +54,22 @@ export default async function InquiryPage({ params }: { params: Promise<{ id: st
   // Reading it is what makes it read. Only `new` moves, so this never walks a
   // replied inquiry backwards.
   await markInquiryOpened(inquiry.id);
+
+  const piecesHeading =
+    inquiry.kind === 'similar'
+      ? 'Working from'
+      : inquiry.kind === 'print'
+        ? 'Image to print'
+        : inquiry.paintings.length === 1
+          ? 'The piece'
+          : 'The pieces';
+
+  const priceCaption = (price: string) =>
+    inquiry.kind === 'print'
+      ? `Original was ${price} when they asked. The print is not priced.`
+      : inquiry.kind === 'similar'
+        ? `Reference piece, ${price} when they asked. A new painting is priced on its own.`
+        : `${price} at time of inquiry`;
 
   const subject = `Re: your ${INQUIRY_KIND_LABEL[inquiry.kind].toLowerCase()} — ${inquiry.reference}`;
   const greeting = `Hi ${inquiry.name.split(' ')[0]},\n\n`;
@@ -96,20 +114,35 @@ export default async function InquiryPage({ params }: { params: Promise<{ id: st
 
         <Separator className="my-6" />
 
-        <section>
-          <h2 className="mb-3 text-sm font-semibold">Message</h2>
-          {/* Sender-supplied text. Rendered as plain text inside a paragraph -
-              never as markup - so nothing a stranger types can become HTML. */}
-          <p className="bg-muted rounded-lg p-4 text-sm leading-relaxed whitespace-pre-wrap">
-            {inquiry.message}
-          </p>
-        </section>
+        {/* A print request is fully described by the fields below it, so its
+            message is optional and often empty. An empty box would read as a
+            message that failed to save. */}
+        {inquiry.message ? (
+          <section>
+            <h2 className="mb-3 text-sm font-semibold">
+              {inquiry.kind === 'similar' ? 'What they want changed' : 'Message'}
+            </h2>
+            {/* Sender-supplied text. Rendered as plain text inside a paragraph -
+                never as markup - so nothing a stranger types can become HTML. */}
+            <p className="bg-muted rounded-lg p-4 text-sm leading-relaxed whitespace-pre-wrap">
+              {inquiry.message}
+            </p>
+          </section>
+        ) : null}
 
-        {inquiry.kind === 'commission' ? (
+        {/* A commission and a request for something similar are the same job
+            with a different starting point, so they share these fields. Only a
+            commission has a written subject - for the other, the referenced
+            canvas below is the subject. */}
+        {isCommissionShaped(inquiry.kind) ? (
           <section className="mt-6">
-            <h2 className="mb-3 text-sm font-semibold">The brief</h2>
+            <h2 className="mb-3 text-sm font-semibold">
+              {inquiry.kind === 'commission' ? 'The brief' : 'What they are asking for'}
+            </h2>
             <dl className="grid gap-4 sm:grid-cols-2">
-              <Detail term="Wants painted">{inquiry.subject || '—'}</Detail>
+              {inquiry.kind === 'commission' ? (
+                <Detail term="Wants painted">{inquiry.subject || 'Not given'}</Detail>
+              ) : null}
               <Detail term="Size in mind">{inquiry.size || 'No preference'}</Detail>
               <Detail term="Budget">
                 {inquiry.budget ? BUDGET_LABEL[inquiry.budget] : 'No preference'}
@@ -121,11 +154,26 @@ export default async function InquiryPage({ params }: { params: Promise<{ id: st
           </section>
         ) : null}
 
+        {inquiry.kind === 'print' ? (
+          <section className="mt-6">
+            <h2 className="mb-3 text-sm font-semibold">The print</h2>
+            <dl className="grid gap-4 sm:grid-cols-3">
+              <Detail term="Size wanted">{inquiry.printSize || 'Not given'}</Detail>
+              <Detail term="Printed on">
+                {PRINT_FINISH_LABEL[inquiry.printFinish ?? 'either']}
+              </Detail>
+              <Detail term="How many">{inquiry.printQuantity}</Detail>
+            </dl>
+            <p className="text-muted-foreground mt-3 text-xs">
+              Nothing here has been quoted or promised. The size is what they asked for, not what
+              this image can be printed at.
+            </p>
+          </section>
+        ) : null}
+
         {inquiry.paintings.length > 0 ? (
           <section className="mt-6">
-            <h2 className="mb-3 text-sm font-semibold">
-              {inquiry.paintings.length === 1 ? 'The piece' : 'The pieces'}
-            </h2>
+            <h2 className="mb-3 text-sm font-semibold">{piecesHeading}</h2>
             <ul className="grid gap-2">
               {inquiry.paintings.map((painting) => (
                 <li
@@ -135,9 +183,12 @@ export default async function InquiryPage({ params }: { params: Promise<{ id: st
                   <div className="min-w-0">
                     <p className="truncate text-sm font-medium">{painting.title}</p>
                     {/* Price as it stood when they asked, which is what they
-                        believe they are being quoted. */}
+                        believe they are being quoted - except on a print or a
+                        similar request, where the original's price is context
+                        rather than an offer, and saying so here stops it being
+                        quoted back at them by mistake. */}
                     <p className="text-muted-foreground text-xs">
-                      {priceFormatter.format(painting.priceCents / 100)} at time of inquiry
+                      {priceCaption(priceFormatter.format(painting.priceCents / 100))}
                     </p>
                   </div>
                   <Button asChild variant="outline" size="sm">

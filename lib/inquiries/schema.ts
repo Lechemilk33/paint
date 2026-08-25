@@ -1,20 +1,37 @@
 import { z } from 'zod';
 
 /**
- * Why someone got in touch. The three routes into the studio's inbox are
- * genuinely different conversations - a commission is a brief, a question is
- * about one canvas, a purchase inquiry is a list of pieces someone wants to
- * buy - so they are one record with a discriminating kind rather than three
- * tables, which keeps the inbox a single ordered stream.
+ * Why someone got in touch. These are genuinely different conversations - a
+ * commission is a brief, a question is about one canvas, a purchase is a list
+ * of pieces, "similar" is a commission with an existing piece as its reference,
+ * and a print is a reproduction rather than a painting at all - so they are one
+ * record with a discriminating kind rather than five tables, which keeps the
+ * inbox a single ordered stream.
+ *
+ * Values are only ever appended. Every stored record names its kind, so
+ * removing or renaming one would fail to parse an inbox that already has it.
  */
-export const inquiryKindSchema = z.enum(['commission', 'piece', 'purchase']);
+export const inquiryKindSchema = z.enum([
+  'commission',
+  'piece',
+  'purchase',
+  'similar',
+  'print',
+]);
 export type InquiryKind = z.infer<typeof inquiryKindSchema>;
 
 export const INQUIRY_KIND_LABEL: Record<InquiryKind, string> = {
   commission: 'Commission',
   piece: 'Question',
   purchase: 'Purchase',
+  similar: 'Similar piece',
+  print: 'Print',
 };
+
+/** The kinds that carry a brief, a budget and a timeframe. */
+export function isCommissionShaped(kind: InquiryKind): boolean {
+  return kind === 'commission' || kind === 'similar';
+}
 
 /**
  * Where a conversation has got to. `new` is the unread state and drives the
@@ -41,6 +58,21 @@ export const BUDGET_LABEL: Record<Budget, string> = {
   '1000_2500': '$1,000 - $2,500',
   '2500_plus': '$2,500 and up',
   unsure: 'Not sure yet',
+};
+
+/**
+ * What a print is printed on - asked as the buyer's preference, not as a menu
+ * of what the studio stocks. Nothing here claims a finish is available; the
+ * studio confirms what it can actually do when it replies, which is why the
+ * default is "either".
+ */
+export const printFinishSchema = z.enum(['either', 'paper', 'canvas']);
+export type PrintFinish = z.infer<typeof printFinishSchema>;
+
+export const PRINT_FINISH_LABEL: Record<PrintFinish, string> = {
+  either: 'Either, or not sure',
+  paper: 'Paper',
+  canvas: 'Canvas',
 };
 
 export const timeframeSchema = z.enum(['no_rush', 'few_months', 'specific_date']);
@@ -85,11 +117,16 @@ export const inquiryInputSchema = z.object({
     .min(1, 'An email address is needed to reply')
     .max(EMAIL_MAX, 'That address is too long')
     .pipe(z.email('That does not look like an email address')),
+  /**
+   * Required for every kind except a print, which is fully described by the
+   * image, the size and the count - see the refinement below. Making someone
+   * write a sentence to order a reproduction is friction that buys nothing.
+   */
   message: z
     .string()
     .trim()
-    .min(10, 'A sentence or two is plenty, but there needs to be something here')
-    .max(MESSAGE_MAX, 'That message is too long - please trim it a little'),
+    .max(MESSAGE_MAX, 'That message is too long - please trim it a little')
+    .default(''),
 
   /** Commission only. Validated conditionally below. */
   subject: z.string().trim().max(SHORT_MAX, 'That is too long').default(''),
@@ -97,7 +134,22 @@ export const inquiryInputSchema = z.object({
   budget: budgetSchema.optional(),
   timeframe: timeframeSchema.optional(),
 
-  /** Piece and purchase inquiries carry the canvases they are about. */
+  /**
+   * Print requests only. Sizes are free text rather than a select, because the
+   * studio has not published a size list and inventing one would be promising
+   * dimensions nobody has offered.
+   */
+  printSize: z.string().trim().max(SHORT_MAX, 'That is too long').default(''),
+  printFinish: printFinishSchema.optional(),
+  printQuantity: z
+    .number({ message: 'Enter how many prints' })
+    .int('Whole prints only')
+    .min(1, 'At least one')
+    .max(50, 'For more than fifty, write it in the message')
+    .default(1),
+
+  /** Piece, purchase, similar and print inquiries carry the canvases they are
+   *  about. For "similar" it is the reference; for a print it is the image. */
   paintings: z.array(inquiryPaintingSchema).max(50).default([]),
 });
 export type InquiryInput = z.infer<typeof inquiryInputSchema>;
@@ -109,11 +161,32 @@ export type InquiryInput = z.infer<typeof inquiryInputSchema>;
  * that decides what a valid inquiry is.
  */
 export const inquirySubmissionSchema = inquiryInputSchema.superRefine((value, ctx) => {
+  // Every kind but a print needs words in it, because every other kind is a
+  // question the studio cannot answer from the form fields alone.
+  if (value.kind !== 'print' && value.message.length < 10) {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['message'],
+      message: 'A sentence or two is plenty, but there needs to be something here',
+    });
+  }
+  // A commission with no brief is not a commission. A "similar" request is
+  // exempt: the piece it references is the brief, and the message carries
+  // whatever should change.
   if (value.kind === 'commission' && value.subject.length === 0) {
     ctx.addIssue({
       code: 'custom',
       path: ['subject'],
       message: 'Say what you would like painted',
+    });
+  }
+  // Both of these name a specific canvas. Losing that reference would leave the
+  // studio holding a request with no idea which image it is about.
+  if ((value.kind === 'similar' || value.kind === 'print') && value.paintings.length === 0) {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['paintings'],
+      message: 'That request lost track of which piece it is about. Reload and try again.',
     });
   }
 });
@@ -153,7 +226,13 @@ export function filterInquiries(inquiries: Inquiry[], filters: InquiryFilters): 
 /** A one-line description of an inquiry, for the inbox row. */
 export function inquirySummary(inquiry: Inquiry): string {
   if (inquiry.kind === 'commission') return inquiry.subject || 'Commission request';
-  if (inquiry.paintings.length === 1) return inquiry.paintings[0].title;
+  const piece = inquiry.paintings[0]?.title;
+  if (inquiry.kind === 'similar') return piece ? `Similar to ${piece}` : 'Similar piece';
+  if (inquiry.kind === 'print') {
+    const count = inquiry.printQuantity > 1 ? ` x${inquiry.printQuantity}` : '';
+    return piece ? `Print of ${piece}${count}` : 'Print request';
+  }
+  if (inquiry.paintings.length === 1) return piece ?? 'One piece';
   if (inquiry.paintings.length > 1) return `${inquiry.paintings.length} pieces`;
   return 'General inquiry';
 }

@@ -2,20 +2,39 @@
 
 import { Button } from '@/components/ui/button';
 import { PieceInquiry } from '@/features/inquiries/components/piece-inquiry';
-import { type Painting } from '@/lib/paintings/schema';
+import { type Availability, type Painting } from '@/lib/paintings/schema';
 import { useCart } from './cart-provider';
 import { HoldButton } from './hold-button';
 
-/** What the visitor can do about this piece, which depends entirely on its
- *  availability. Wrapped in a row so the buttons size to their content: as a
- *  direct child of the detail column's flex stack they would be stretched. */
-export function PaintingPurchase({ painting }: { painting: Painting }) {
-  const { isHeld, setOpen } = useCart();
+/**
+ * A note only where the status badge above leaves a real question unanswered.
+ * "Sold" and "Not for sale" are already stated twice on this page - in the
+ * badge and in place of the price - and saying them a third time is noise. A
+ * hold is the one state where what happens next is not obvious from the word.
+ */
+const NOTE: Partial<Record<Availability, string>> = {
+  on_hold: 'Held for someone else while they decide. Holds do fall through.',
+};
 
-  if (painting.availability === 'available') {
-    return (
-      <div className="flex flex-col gap-4">
-        <div className="flex flex-wrap items-center gap-3">
+/**
+ * What the visitor can do about this piece.
+ *
+ * Buying is offered only for a piece that is actually available; asking is
+ * offered for every piece, because a sold canvas is still the best possible
+ * description of what someone wants painted next. Wrapped in a row so the
+ * buttons size to their content - as direct children of the detail column's
+ * flex stack they would be stretched.
+ */
+export function PaintingPurchase({ painting, ask }: { painting: Painting; ask?: string }) {
+  const { isHeld, setOpen } = useCart();
+  const note = NOTE[painting.availability];
+
+  return (
+    <div className="flex flex-col items-start gap-4">
+      {note ? <p className="text-foreground-secondary text-sm">{note}</p> : null}
+
+      {painting.availability === 'available' ? (
+        <div className="flex w-full flex-wrap items-center gap-3">
           <HoldButton painting={painting} size="lg" className="w-full sm:w-auto" />
           {isHeld(painting.id) ? (
             <Button
@@ -29,22 +48,9 @@ export function PaintingPurchase({ painting }: { painting: Painting }) {
             </Button>
           ) : null}
         </div>
-        <PieceInquiry painting={painting} />
-      </div>
-    );
-  }
+      ) : null}
 
-  const message = {
-    sold: 'Sold. Ask about a commission if you want something in this vein.',
-    on_hold: 'On hold for someone. Ask to be next if it becomes available.',
-    not_for_sale: 'Not for sale.',
-    available: '',
-  }[painting.availability];
-
-  return (
-    <div className="flex flex-col items-start gap-4">
-      <p className="text-foreground-secondary text-sm">{message}</p>
-      <PieceInquiry painting={painting} />
+      <PieceInquiry painting={painting} ask={ask} />
     </div>
   );
 }

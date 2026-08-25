@@ -135,7 +135,7 @@ async function main(): Promise<void> {
       continue;
     }
 
-    const painting = await createPainting({ ...input, driveFolder: '', notes: '' });
+    const painting = await createPainting({ ...input, printsAvailable: false, driveFolder: '', notes: '' });
     const bytes = await readFile(path.join(root, 'public/store', file));
     const photo = await addPhoto(painting.id, { buffer: bytes });
     await updatePhotoAlt(painting.id, photo.id, alt);

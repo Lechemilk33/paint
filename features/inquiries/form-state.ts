@@ -35,14 +35,22 @@ export const EMPTY_INQUIRY_STATE: InquiryFormState = {
 export const SENT_COPY: Record<InquiryKind, { title: string; body: string }> = {
   commission: {
     title: 'Commission request sent',
-    body: 'The studio will come back to you with questions, a price and a rough timeline. Commissions are usually answered within a week.',
+    body: 'The studio will read it and reply to the address you gave.',
   },
   piece: {
     title: 'Question sent',
-    body: 'The studio will reply to you directly about this piece, usually within a week.',
+    body: 'The studio will reply to the address you gave.',
   },
   purchase: {
     title: 'Inquiry sent',
-    body: 'The studio will confirm what is still available and reply with payment and shipping, usually within a week.',
+    body: 'The studio will confirm what is still available and reply about payment and shipping.',
+  },
+  similar: {
+    title: 'Request sent',
+    body: 'The studio has the piece you referenced and what you would like changed, and will reply about price and timing.',
+  },
+  print: {
+    title: 'Print request sent',
+    body: 'The studio will confirm what sizes and finishes it can produce for this image, and what they cost.',
   },
 };

@@ -64,6 +64,8 @@ function readForm(formData: FormData) {
     story: text('story'),
     edition: text('edition'),
     availability: text('availability'),
+    // An unchecked box submits nothing at all, so absence is the false case.
+    printsAvailable: formData.get('printsAvailable') !== null,
     driveFolder: text('driveFolder'),
     notes: text('notes'),
   };

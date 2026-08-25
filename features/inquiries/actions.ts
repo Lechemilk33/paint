@@ -29,6 +29,17 @@ const TRAP_FIELD = 'company_website';
  */
 const MIN_COMPOSE_MS = 3000;
 
+/**
+ * A form sends numbers as text. Blank means the field was not asked for, and
+ * falls through to the schema's default of one; anything unparseable is handed
+ * over as-is so the schema rejects it with a message rather than being silently
+ * turned into 1.
+ */
+function toQuantity(raw: FormDataEntryValue | null): number | undefined {
+  const value = String(raw ?? '').trim();
+  return value === '' ? undefined : Number(value);
+}
+
 function toFieldErrors(error: z.ZodError): Record<string, string> {
   const fieldErrors: Record<string, string> = {};
   for (const issue of error.issues) {
@@ -39,7 +50,18 @@ function toFieldErrors(error: z.ZodError): Record<string, string> {
 }
 
 /** The text fields echoed back on a failed submit, so nothing typed is lost. */
-const ECHOED = ['name', 'email', 'message', 'subject', 'size', 'budget', 'timeframe'] as const;
+const ECHOED = [
+  'name',
+  'email',
+  'message',
+  'subject',
+  'size',
+  'budget',
+  'timeframe',
+  'printSize',
+  'printFinish',
+  'printQuantity',
+] as const;
 
 function echo(formData: FormData): Record<string, string> {
   const values: Record<string, string> = {};
@@ -51,7 +73,9 @@ function echo(formData: FormData): Record<string, string> {
 }
 
 /**
- * Receives an inquiry from any of the three public entry points.
+ * Receives an inquiry from every public entry point: the commission page, a
+ * question about one piece, a request for something similar, a print request,
+ * and the basket.
  *
  * The pieces an inquiry refers to arrive as a JSON blob in a hidden field
  * rather than as ids to look up, because the browser is not trusted to name a
@@ -99,8 +123,13 @@ export async function submitInquiryAction(
     message: formData.get('message'),
     subject: formData.get('subject') ?? '',
     size: formData.get('size') ?? '',
+    // An empty select is "no preference", which is not the same as a bad value:
+    // `undefined` lets the optional schema pass, where '' would be rejected.
     budget: formData.get('budget') || undefined,
     timeframe: formData.get('timeframe') || undefined,
+    printSize: formData.get('printSize') ?? '',
+    printFinish: formData.get('printFinish') || undefined,
+    printQuantity: toQuantity(formData.get('printQuantity')),
     paintings: inquiryPaintingSchema.array().catch([]).parse(paintings),
   });
 

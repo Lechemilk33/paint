@@ -26,10 +26,13 @@ export function PaintingDetail({
   painting,
   paintings,
   studio,
+  ask,
 }: {
   painting: Painting;
   paintings: Painting[];
   studio: Studio;
+  /** Raw `?ask=` value. Validated where it is used, never trusted here. */
+  ask?: string;
 }) {
   // A piece can override the studio's usual terms; most will not.
   const shipping = painting.framingShipping || studio.shipping;
@@ -82,7 +85,7 @@ export function PaintingDetail({
               : AVAILABILITY_LABEL[painting.availability]}
           </p>
 
-          <PaintingPurchase painting={painting} />
+          <PaintingPurchase painting={painting} ask={ask} />
 
           <dl className="mt-2">
             <SpecRow label="Year" value={String(painting.year)} />
