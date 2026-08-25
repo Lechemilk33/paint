@@ -44,6 +44,36 @@ export function StoreFooter({ studio }: { studio: Studio }) {
           ) : null}
         </div>
       </div>
+
+      {/*
+        The way back into the studio. Deliberately a printer's mark rather than
+        a labelled link: it sits on every public page, and a visitor reading
+        about a painting has no use for it. Quiet, not hidden - the admin is
+        gated in proxy.ts, so nothing here is holding a door shut, and it keeps
+        a real accessible name and a visible focus ring so it can still be
+        reached by keyboard or screen reader.
+      */}
+      <div className="mx-auto flex w-full max-w-7xl justify-end px-5 pb-10 sm:px-8">
+        <Link
+          href="/admin"
+          rel="nofollow"
+          aria-label="Studio admin"
+          title="Studio"
+          className="group focus-visible:ring-ring inline-flex size-6 items-center justify-center rounded-xs focus-visible:ring-2 focus-visible:outline-none"
+        >
+          {/*
+            The same rotated square the header sets beside the wordmark, so it
+            reads as the site's own furniture rather than a stray glyph - and
+            unlike a text diamond it cannot fall back to a different shape in a
+            font that lacks it. The link box is 24px for a fingertip while the
+            mark itself stays 6px.
+          */}
+          <span
+            aria-hidden="true"
+            className="bg-muted-foreground/30 group-hover:bg-voltage group-focus-visible:bg-voltage size-1.5 rotate-45 transition-colors"
+          />
+        </Link>
+      </div>
     </footer>
   );
 }
