@@ -64,18 +64,18 @@ export default async function AdminDashboardPage() {
               return (
                 <li
                   key={painting.id}
-                  className="border-border bg-card flex flex-col gap-4 rounded-lg border p-3 sm:flex-row sm:items-center"
+                  className="border-border bg-card flex flex-wrap items-center gap-3 rounded-lg border p-3 sm:gap-4"
                 >
                   <Link
                     href={`/admin/paintings/${painting.id}`}
-                    className="focus-visible:ring-ring bg-muted relative aspect-square w-full shrink-0 overflow-hidden rounded-md focus-visible:ring-2 focus-visible:outline-none sm:size-20"
+                    className="focus-visible:ring-ring bg-muted relative size-16 shrink-0 overflow-hidden rounded-md focus-visible:ring-2 focus-visible:outline-none sm:size-20"
                   >
                     {photo ? (
                       <Image
                         src={photoUrl(photo)}
                         alt={photo.alt || painting.title}
                         fill
-                        sizes="80px"
+                        sizes="(min-width: 640px) 80px, 64px"
                         className="object-cover"
                       />
                     ) : (
@@ -85,7 +85,7 @@ export default async function AdminDashboardPage() {
                     )}
                   </Link>
 
-                  <div className="min-w-0 flex-1">
+                  <div className="min-w-0 flex-1 basis-40">
                     <Link
                       href={`/admin/paintings/${painting.id}`}
                       className="hover:text-primary font-medium"
@@ -110,13 +110,13 @@ export default async function AdminDashboardPage() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2">
+                  <div className="flex w-full items-center gap-2 sm:w-auto">
                     <AvailabilitySelect
                       paintingId={painting.id}
                       value={painting.availability}
                       label={AVAILABILITY_LABEL[painting.availability]}
                     />
-                    <Button asChild variant="outline" size="sm">
+                    <Button asChild variant="outline" size="sm" className="ml-auto sm:ml-0">
                       <Link href={`/admin/paintings/${painting.id}`}>Edit</Link>
                     </Button>
                   </div>

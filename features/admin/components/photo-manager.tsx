@@ -103,14 +103,14 @@ export function PhotoManager({ painting }: { painting: Painting }) {
           {photos.map((photo, index) => (
             <li
               key={photo.id}
-              className="border-border bg-card flex flex-col gap-3 rounded-lg border p-3 sm:flex-row sm:items-start"
+              className="border-border bg-card flex flex-wrap items-start gap-3 rounded-lg border p-3"
             >
-              <div className="bg-muted relative aspect-square w-full shrink-0 overflow-hidden rounded-md sm:w-28">
+              <div className="bg-muted relative size-24 shrink-0 overflow-hidden rounded-md sm:size-28">
                 <Image
                   src={photoUrl(photo)}
                   alt={photo.alt || `Photo ${index + 1} of ${painting.title}`}
                   fill
-                  sizes="112px"
+                  sizes="(min-width: 640px) 112px, 96px"
                   className="object-cover"
                 />
               </div>
