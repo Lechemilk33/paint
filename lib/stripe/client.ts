@@ -35,13 +35,33 @@ export function stripe(): Stripe {
 /**
  * The site's own origin, for building the URLs Stripe redirects back to.
  *
- * Netlify injects `URL` for the production site and `DEPLOY_PRIME_URL` for
- * previews. Preferring the deploy URL means a preview's checkout returns to
- * that preview instead of to production - which matters because the two do not
- * share a catalog, so a cross-deploy return would land on a missing painting.
+ * Tried in order of how much they can be trusted. `SITE_ORIGIN` is explicit.
+ * Netlify's `DEPLOY_PRIME_URL` and `URL` come next, deploy URL first so a
+ * preview's checkout returns to that preview rather than to production - the
+ * two do not share a catalog, and a cross-deploy return would land on a
+ * painting that is not there.
+ *
+ * The request's own headers are the last resort, and they are here because
+ * both Netlify variables are documented as *build* variables: if neither
+ * reaches the function runtime, every buyer would be sent to localhost after
+ * paying, and it would only show up once real money had moved. Reading the
+ * host off the request cannot be absent at request time. It is last because
+ * a forged Host header would steer the redirect - though only for the person
+ * who forged it, since it decides where that one buyer lands afterwards.
  */
-export function siteOrigin(): string {
-  const configured =
-    process.env.SITE_ORIGIN || process.env.DEPLOY_PRIME_URL || process.env.URL;
-  return (configured || 'http://localhost:3000').replace(/\/+$/, '');
+export async function siteOrigin(): Promise<string> {
+  const configured = process.env.SITE_ORIGIN || process.env.DEPLOY_PRIME_URL || process.env.URL;
+  if (configured) return configured.replace(/\/+$/, '');
+
+  const { headers } = await import('next/headers');
+  const headerList = await headers();
+  const host = headerList.get('host');
+  if (host) {
+    // Behind Netlify's proxy the scheme is only in the forwarded header; a
+    // bare `host` on a real deploy is https either way.
+    const proto = headerList.get('x-forwarded-proto') ?? (host.startsWith('localhost') ? 'http' : 'https');
+    return `${proto}://${host}`;
+  }
+
+  return 'http://localhost:3000';
 }

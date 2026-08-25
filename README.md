@@ -90,7 +90,7 @@ lib/
 features/
   storefront/         # public components
   admin/              # server actions and admin components
-scripts/              # seed, credentials
+scripts/              # seed, credentials, paycheck
 ```
 
 ## Editing the content
@@ -146,9 +146,23 @@ never takes a piece off sale for good.
 
 The hold is the guard, not the record. What marks a painting sold is the
 webhook, after Stripe confirms the money, because someone who pays and closes
-the tab has still paid. If a second payment ever does land on a sold piece,
-the order is written down as `needs_refund` and flagged in the admin rather
-than quietly overwriting the first.
+the tab has still paid. Marking a piece sold records which checkout did it, so
+a redelivered webhook is recognised as that same payment - without that, a
+retry would book a perfectly good sale as one needing a refund. If a second
+payment ever does land on a sold piece, the order is written down as
+`needs_refund` and flagged in the admin rather than quietly overwriting the
+first.
+
+`npm run paycheck` exercises all of this against the local store: ten
+simultaneous claims on one canvas, a redelivered webhook, a second buyer, and
+a piece deleted mid-checkout. It refuses to run against Netlify Blobs, since
+it writes to the catalog.
+
+**Known limit:** starting a checkout is a public action, so someone determined
+could take a hold on every piece and renew it, keeping the store unsellable in
+35-minute windows. It costs them nothing and it takes no payment, so it is
+vandalism rather than fraud - but there is no rate limiting on that path today.
+Per-IP throttling on `startCheckoutAction` is where to add it.
 
 ## Notes
 

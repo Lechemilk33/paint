@@ -27,11 +27,26 @@ import { HOLDS, blobStore } from '@/lib/storage/blobs';
  */
 
 /**
- * How long a checkout may hold a piece. Thirty minutes is Stripe's own floor
- * for a Checkout Session's expiry, and long enough to type an address without
- * parking someone else's purchase for the afternoon.
+ * How long someone gets to finish paying.
+ *
+ * Stripe's floor for a Checkout Session's expiry is thirty minutes *after the
+ * session is created*, so asking for exactly thirty is asking to be rejected:
+ * the request still has to cross the network, and the timestamp is truncated to
+ * whole seconds on the way out. Both push the value under the floor. Thirty-one
+ * clears it with room to spare and is still long enough to type an address
+ * without parking someone else's purchase for the afternoon.
  */
-export const HOLD_MS = 30 * 60 * 1000;
+export const CHECKOUT_WINDOW_MS = 31 * 60 * 1000;
+
+/**
+ * How long the piece stays claimed. Deliberately longer than the checkout
+ * window, and the direction matters: if a session could outlive its hold, the
+ * hold would lapse, someone else could buy the canvas, and the first person
+ * could then still pay for it - which is the exact double-sale this file
+ * exists to prevent. Erring the other way just keeps a piece claimed a few
+ * minutes past a checkout nobody completed.
+ */
+export const HOLD_MS = CHECKOUT_WINDOW_MS + 4 * 60 * 1000;
 
 export interface Hold {
   holdId: string;

@@ -49,13 +49,15 @@ async function fulfill(session: Stripe.Checkout.Session): Promise<void> {
     return;
   }
 
-  const sale = await markPaintingSold(paintingId);
+  // Passing the session id makes this idempotent: a redelivery of the same
+  // event is recognised as this payment rather than as a second buyer.
+  const sale = await markPaintingSold(paintingId, session.id);
 
-  // A second payment for a piece already sold. The hold system exists to make
-  // this impossible, but if it happens the money is real and the canvas is
-  // not, so the order is written down as needing a refund rather than dropped.
-  if (!sale.ok && sale.reason === 'already_sold') {
-    console.error('Paid session for an already-sold painting', session.id, paintingId);
+  // Money arrived for a canvas the studio cannot ship - either it had already
+  // sold, or it is gone from the catalog. Both are recorded as needing a
+  // refund rather than dropped, because the payment is real either way.
+  if (!sale.ok) {
+    console.error(`Paid session for a painting that is ${sale.reason}`, session.id, paintingId);
   }
 
   const painting = sale.painting;
@@ -84,6 +86,12 @@ async function fulfill(session: Stripe.Checkout.Session): Promise<void> {
         ? session.payment_intent
         : (session.payment_intent?.id ?? ''),
   });
+
+  // The hold has done its job. Dropping it here rather than letting it lapse
+  // keeps a sold piece from leaving a stale claim behind - which would
+  // otherwise block checkout if the studio ever put the canvas back on sale,
+  // and would sit in the store forever either way.
+  await releaseHoldBySession(paintingId, session.id);
 
   // The piece is sold, so the store and the admin both need re-rendering.
   revalidatePath('/store');

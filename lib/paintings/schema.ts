@@ -133,6 +133,15 @@ export const paintingSchema = paintingInputSchema.extend({
   /** URL segment, derived from the title and kept unique across the catalog. */
   slug: z.string().min(1),
   photos: z.array(photoSchema).default([]),
+  /**
+   * The Stripe checkout that sold this piece, if one did. Not editable and not
+   * rendered anywhere - it exists so marking a piece sold can be repeated
+   * safely. Stripe redelivers a webhook until it gets a 2xx, and without this
+   * a redelivery could not tell "already sold by this very payment" from
+   * "already sold by someone else", which is the difference between a normal
+   * sale and refunding a customer who did nothing wrong.
+   */
+  soldBySession: z.string().default(''),
   createdAt: z.string().min(1),
   updatedAt: z.string().min(1),
 });

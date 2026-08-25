@@ -94,8 +94,9 @@ function OrderRow({ order }: { order: Order }) {
         <p className="bg-destructive/10 text-destructive mt-3 flex items-start gap-2 rounded-md p-3 text-sm">
           <TriangleAlert aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
           <span>
-            This piece was already sold when the payment landed, so it has been charged for a canvas
-            that is gone. Refund it in the Stripe dashboard, then mark it refunded here.
+            This payment went through for a canvas the studio cannot ship - either the piece had
+            already sold, or it is no longer in the catalog. The money is real, so refund it in the
+            Stripe dashboard and then mark it refunded here.
           </span>
         </p>
       ) : null}

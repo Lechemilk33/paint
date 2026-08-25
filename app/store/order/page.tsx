@@ -84,8 +84,8 @@ export default async function OrderPage({
           ) : null}
 
           <p className="text-foreground-secondary mt-5 max-w-xl text-base leading-relaxed">
-            Stripe has emailed a receipt{buyerEmail ? ` to ${buyerEmail}` : ''}. The studio packs
-            each piece crated and insured, and will be in touch about timing before it ships.
+            The payment went through{buyerEmail ? `, and the studio has ${buyerEmail}` : ''}. Each
+            piece is packed crated and insured, and you will hear about timing before it ships.
           </p>
 
           <div className="mt-10">

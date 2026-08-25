@@ -83,6 +83,7 @@ export async function createPainting(input: PaintingInput): Promise<Painting> {
     id: randomUUID(),
     slug: uniqueSlug(input.title, paintings),
     photos: [],
+    soldBySession: '',
     createdAt: now,
     updatedAt: now,
   };
@@ -263,19 +264,24 @@ export type SaleResult =
   | { ok: true; painting: Painting }
   | { ok: false; reason: 'missing' | 'already_sold'; painting: Painting | null };
 
-export async function markPaintingSold(id: string): Promise<SaleResult> {
+export async function markPaintingSold(id: string, sessionId: string): Promise<SaleResult> {
   const paintings = await readCatalog();
   const index = paintings.findIndex((painting) => painting.id === id);
   if (index === -1) return { ok: false, reason: 'missing', painting: null };
 
   const existing = paintings[index];
   if (existing.availability === 'sold') {
+    // Sold by this very checkout: a redelivered webhook, not a second buyer.
+    // Answering `ok` here is what stops a retry from booking a good sale as
+    // one needing a refund.
+    if (existing.soldBySession === sessionId) return { ok: true, painting: existing };
     return { ok: false, reason: 'already_sold', painting: existing };
   }
 
   const sold: Painting = {
     ...existing,
     availability: 'sold',
+    soldBySession: sessionId,
     updatedAt: new Date().toISOString(),
   };
   paintings[index] = sold;

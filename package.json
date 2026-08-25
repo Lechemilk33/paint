@@ -8,7 +8,8 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "seed": "tsx --tsconfig scripts/tsconfig.json scripts/seed.ts",
-    "credentials": "tsx --tsconfig scripts/tsconfig.json scripts/make-credentials.ts"
+    "credentials": "tsx --tsconfig scripts/tsconfig.json scripts/make-credentials.ts",
+    "paycheck": "tsx --tsconfig scripts/tsconfig.json scripts/paycheck.ts"
   },
   "dependencies": {
     "@netlify/blobs": "^11.0.1",

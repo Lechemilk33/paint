@@ -31,8 +31,8 @@ async function requireAdmin(): Promise<void> {
 
 /** The editable subset of a stored record, for writes that change one field. */
 function toInput(painting: Painting): PaintingInput {
-  const { id, slug, photos, createdAt, updatedAt, ...input } = painting;
-  void id, slug, photos, createdAt, updatedAt;
+  const { id, slug, photos, soldBySession, createdAt, updatedAt, ...input } = painting;
+  void id, slug, photos, soldBySession, createdAt, updatedAt;
   return input;
 }
 

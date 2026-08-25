@@ -3,7 +3,7 @@
 import { redirect } from 'next/navigation';
 import { getPaintingById } from '@/lib/paintings/repository';
 import { canBuyNow, primaryPhoto } from '@/lib/paintings/schema';
-import { HOLD_MS, attachSession, releaseHold, takeHold } from '@/lib/orders/holds';
+import { CHECKOUT_WINDOW_MS, attachSession, releaseHold, takeHold } from '@/lib/orders/holds';
 import { siteOrigin, stripe, stripeConfigured } from '@/lib/stripe/client';
 
 /**
@@ -58,16 +58,16 @@ export async function startCheckoutAction(
   }
 
   const photo = primaryPhoto(painting);
-  const origin = siteOrigin();
+  const origin = await siteOrigin();
   let url: string | null = null;
 
   try {
     const session = await stripe().checkout.sessions.create({
       mode: 'payment',
-      // Expiring the session with the hold keeps the two from disagreeing:
-      // Stripe stops accepting payment at the same moment the piece is free
-      // for someone else to claim.
-      expires_at: Math.floor((Date.now() + HOLD_MS) / 1000),
+      // The session expires before the hold does, so Stripe stops accepting
+      // payment while the piece is still claimed - never the other way round.
+      // See CHECKOUT_WINDOW_MS for why this is not simply thirty minutes.
+      expires_at: Math.floor((Date.now() + CHECKOUT_WINDOW_MS) / 1000),
       line_items: [
         {
           quantity: 1,
