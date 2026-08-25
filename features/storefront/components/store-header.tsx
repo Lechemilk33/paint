@@ -9,6 +9,7 @@ import { CartSheet } from './cart-sheet';
 
 const NAV = [
   { href: '/store#catalog', label: 'Work' },
+  { href: '/store/commission', label: 'Commission' },
   { href: '/store#studio', label: 'Studio' },
 ];
 

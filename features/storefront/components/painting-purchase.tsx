@@ -1,8 +1,8 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import { PieceEnquiry } from '@/features/enquiries/components/piece-enquiry';
 import { type Painting } from '@/lib/paintings/schema';
-import { STUDIO } from '../studio';
 import { useCart } from './cart-provider';
 import { HoldButton } from './hold-button';
 
@@ -14,43 +14,37 @@ export function PaintingPurchase({ painting }: { painting: Painting }) {
 
   if (painting.availability === 'available') {
     return (
-      <div className="flex flex-wrap items-center gap-3">
-        <HoldButton painting={painting} size="lg" className="w-full sm:w-auto" />
-        {isHeld(painting.id) ? (
-          <Button
-            type="button"
-            variant="ghost"
-            size="lg"
-            onClick={() => setOpen(true)}
-            className="hover:text-voltage tracking-label rounded-none font-mono text-xs uppercase"
-          >
-            View holds
-          </Button>
-        ) : null}
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-wrap items-center gap-3">
+          <HoldButton painting={painting} size="lg" className="w-full sm:w-auto" />
+          {isHeld(painting.id) ? (
+            <Button
+              type="button"
+              variant="ghost"
+              size="lg"
+              onClick={() => setOpen(true)}
+              className="hover:text-voltage tracking-label rounded-none font-mono text-xs uppercase"
+            >
+              View holds
+            </Button>
+          ) : null}
+        </div>
+        <PieceEnquiry painting={painting} />
       </div>
     );
   }
 
   const message = {
-    sold: 'This one has found a wall. Commissions in the same vein are open.',
+    sold: 'This one has found a wall. A commission in the same vein is open.',
     on_hold: 'Someone has a hold on this piece. Ask to be next in line if it comes back.',
     not_for_sale: 'This piece is not for sale. It is here so you can see the work.',
     available: '',
   }[painting.availability];
 
   return (
-    <div className="flex flex-col items-start gap-3">
+    <div className="flex flex-col items-start gap-4">
       <p className="text-foreground-secondary text-sm">{message}</p>
-      <Button
-        asChild
-        size="lg"
-        variant="outline"
-        className="border-voltage/50 text-voltage hover:bg-voltage/10 hover:text-voltage tracking-label rounded-none font-mono text-xs uppercase"
-      >
-        <a href={`mailto:${STUDIO.contactEmail}?subject=${encodeURIComponent(painting.title)}`}>
-          Ask about this piece
-        </a>
-      </Button>
+      <PieceEnquiry painting={painting} />
     </div>
   );
 }

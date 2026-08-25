@@ -3,6 +3,7 @@ import { randomUUID } from 'node:crypto';
 import sharp from 'sharp';
 import { MEDIA, RECORDS, blobStore } from '@/lib/storage/blobs';
 import {
+  RESERVED_SLUGS,
   paintingSchema,
   slugify,
   type Painting,
@@ -66,6 +67,7 @@ function uniqueSlug(title: string, paintings: Painting[], exceptId?: string): st
   const taken = new Set(
     paintings.filter((painting) => painting.id !== exceptId).map((painting) => painting.slug),
   );
+  for (const reserved of RESERVED_SLUGS) taken.add(reserved);
   if (!taken.has(base)) return base;
   for (let n = 2; ; n += 1) {
     const candidate = `${base}-${n}`;

@@ -133,6 +133,13 @@ export function slugify(title: string): string {
   );
 }
 
+/**
+ * Slugs the store already uses for its own pages. A painting that took one of
+ * these would be unreachable - Next resolves the static segment first - so the
+ * catalog refuses them and appends a suffix instead.
+ */
+export const RESERVED_SLUGS = new Set(['commission', 'about', 'contact', 'studio', 'cart']);
+
 /** Filter state for the catalog grid. `null` means "no filter applied". */
 export interface PaintingFilters {
   series: string | null;
