@@ -1,20 +1,24 @@
 import Link from 'next/link';
-import { ExternalLink, Inbox, LogOut, Palette, Settings } from 'lucide-react';
+import { ExternalLink, Inbox, LogOut, Package, Palette, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { listInquiries } from '@/lib/inquiries/repository';
 import { countUnread } from '@/lib/inquiries/schema';
+import { listOrders } from '@/lib/orders/repository';
+import { countOpen } from '@/lib/orders/schema';
 import { signOut } from '../auth-actions';
 
 /**
  * Chrome shared by every signed-in admin page.
  *
- * Async because it carries the unread count: an inbox badge that only appears
- * once you visit the inbox is useless, so the number is read on every admin
- * page. The pages that render it are already dynamic, so this costs one blob
- * read and never a stale count.
+ * Async because it carries the unread and unshipped counts: a badge that only
+ * appears once you visit the page it counts is useless, so both numbers are
+ * read on every admin page. The pages that render it are already dynamic, so
+ * this costs two blob reads and never a stale count.
  */
 export async function AdminHeader() {
-  const unread = countUnread(await listInquiries());
+  const [inquiries, orders] = await Promise.all([listInquiries(), listOrders()]);
+  const unread = countUnread(inquiries);
+  const open = countOpen(orders);
 
   return (
     <header className="border-border bg-card sticky top-0 z-10 border-b">
@@ -43,6 +47,23 @@ export async function AdminHeader() {
             {unread > 0 ? (
               <span className="sr-only">
                 {unread === 1 ? '1 unread inquiry' : `${unread} unread inquiries`}
+              </span>
+            ) : null}
+          </Link>
+        </Button>
+
+        <Button asChild variant="ghost" size="sm">
+          <Link href="/admin/orders">
+            <Package />
+            <span className="hidden sm:inline">Orders</span>
+            {open > 0 ? (
+              <span className="bg-primary text-primary-foreground ml-0.5 rounded-full px-1.5 py-0.5 text-[0.6875rem] leading-none font-semibold tabular-nums">
+                {open}
+              </span>
+            ) : null}
+            {open > 0 ? (
+              <span className="sr-only">
+                {open === 1 ? '1 order needing attention' : `${open} orders needing attention`}
               </span>
             ) : null}
           </Link>

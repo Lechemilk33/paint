@@ -83,6 +83,7 @@ export async function createPainting(input: PaintingInput): Promise<Painting> {
     id: randomUUID(),
     slug: uniqueSlug(input.title, paintings),
     photos: [],
+    soldBySession: '',
     createdAt: now,
     updatedAt: now,
   };
@@ -245,4 +246,45 @@ export async function readPhotoBytes(
     return body ? { body, contentType: photo.contentType } : null;
   }
   return null;
+}
+
+/**
+ * Marks a piece sold, reporting whether this call is the one that sold it.
+ *
+ * Called from the Stripe webhook once a payment has actually completed, and
+ * the answer matters: if the piece was already sold, this payment is a second
+ * one for a one-of-one canvas and the money has to go back. Rather than
+ * silently overwriting - which would leave a buyer charged for nothing and no
+ * trace of it - the caller is told, and records the order as needing a refund.
+ *
+ * Reads the catalog fresh instead of taking a painting from the caller, so the
+ * check and the write see the same document.
+ */
+export type SaleResult =
+  | { ok: true; painting: Painting }
+  | { ok: false; reason: 'missing' | 'already_sold'; painting: Painting | null };
+
+export async function markPaintingSold(id: string, sessionId: string): Promise<SaleResult> {
+  const paintings = await readCatalog();
+  const index = paintings.findIndex((painting) => painting.id === id);
+  if (index === -1) return { ok: false, reason: 'missing', painting: null };
+
+  const existing = paintings[index];
+  if (existing.availability === 'sold') {
+    // Sold by this very checkout: a redelivered webhook, not a second buyer.
+    // Answering `ok` here is what stops a retry from booking a good sale as
+    // one needing a refund.
+    if (existing.soldBySession === sessionId) return { ok: true, painting: existing };
+    return { ok: false, reason: 'already_sold', painting: existing };
+  }
+
+  const sold: Painting = {
+    ...existing,
+    availability: 'sold',
+    soldBySession: sessionId,
+    updatedAt: new Date().toISOString(),
+  };
+  paintings[index] = sold;
+  await writeCatalog(paintings);
+  return { ok: true, painting: sold };
 }

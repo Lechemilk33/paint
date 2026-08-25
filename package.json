@@ -8,7 +8,8 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "seed": "tsx --tsconfig scripts/tsconfig.json scripts/seed.ts",
-    "credentials": "tsx --tsconfig scripts/tsconfig.json scripts/make-credentials.ts"
+    "credentials": "tsx --tsconfig scripts/tsconfig.json scripts/make-credentials.ts",
+    "paycheck": "tsx --tsconfig scripts/tsconfig.json scripts/paycheck.ts"
   },
   "dependencies": {
     "@netlify/blobs": "^11.0.1",
@@ -24,6 +25,7 @@
     "server-only": "^0.0.1",
     "sharp": "^0.35.3",
     "sonner": "^2.0.8",
+    "stripe": "^22.5.0",
     "tailwind-merge": "^3.6.0",
     "zod": "^4.4.3"
   },

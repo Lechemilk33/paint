@@ -135,7 +135,16 @@ async function main(): Promise<void> {
       continue;
     }
 
-    const painting = await createPainting({ ...input, driveFolder: '', notes: '' });
+    // Instant checkout stays off and shipping stays zero: these carry
+    // placeholder prices, and a seeded painting must not be sellable before
+    // anyone has looked at what it costs.
+    const painting = await createPainting({
+      ...input,
+      shippingCents: 0,
+      instantCheckout: false,
+      driveFolder: '',
+      notes: '',
+    });
     const bytes = await readFile(path.join(root, 'public/store', file));
     const photo = await addPhoto(painting.id, { buffer: bytes });
     await updatePhotoAlt(painting.id, photo.id, alt);

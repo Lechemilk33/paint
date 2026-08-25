@@ -9,12 +9,19 @@ import path from 'node:path';
  * to a folder under .netlify/local-blobs that behaves the same way.
  *
  * The two backends are reached through one narrow interface, so no caller ever
- * branches on which is in play. Only the four operations the app actually
- * needs are exposed; anything else would have to be implemented twice.
+ * branches on which is in play. Only the operations the app actually needs are
+ * exposed; anything else would have to be implemented twice.
  */
 export interface BlobBackend {
   getJSON<T>(key: string): Promise<T | null>;
   setJSON(key: string, value: unknown): Promise<void>;
+  /**
+   * Writes only if the key is free, reporting whether it won. This is the one
+   * operation in here that is about contention rather than storage: it is what
+   * lets two people clicking Buy on the same one-of-one canvas resolve to a
+   * winner and a loser rather than to two checkouts. See lib/orders/holds.ts.
+   */
+  setJSONIfNew(key: string, value: unknown): Promise<boolean>;
   getBuffer(key: string): Promise<Buffer | null>;
   setBuffer(key: string, value: Buffer): Promise<void>;
   delete(key: string): Promise<void>;
@@ -35,6 +42,13 @@ class NetlifyBackend implements BlobBackend {
 
   async setJSON(key: string, value: unknown): Promise<void> {
     await this.store.setJSON(key, value);
+  }
+
+  async setJSONIfNew(key: string, value: unknown): Promise<boolean> {
+    // Netlify resolves the conditional server-side, so the check and the write
+    // are one operation - two functions racing cannot both be told they won.
+    const { modified } = await this.store.setJSON(key, value, { onlyIfNew: true });
+    return modified;
   }
 
   async getBuffer(key: string): Promise<Buffer | null> {
@@ -87,6 +101,19 @@ class LocalBackend implements BlobBackend {
     await this.setBuffer(key, Buffer.from(JSON.stringify(value), 'utf8'));
   }
 
+  async setJSONIfNew(key: string, value: unknown): Promise<boolean> {
+    await this.ensure();
+    try {
+      // 'wx' is an exclusive create: the kernel refuses it if the file is
+      // already there, which is the same win-or-lose answer Netlify gives.
+      await writeFile(this.file(key), JSON.stringify(value), { flag: 'wx' });
+      return true;
+    } catch (cause) {
+      if ((cause as NodeJS.ErrnoException).code === 'EEXIST') return false;
+      throw cause;
+    }
+  }
+
   async getBuffer(key: string): Promise<Buffer | null> {
     try {
       return await readFile(this.file(key));
@@ -130,3 +157,11 @@ export function blobStore(name: string): BlobBackend {
 export const RECORDS = 'paintings';
 /** Photo bytes, one blob per uploaded image. */
 export const MEDIA = 'media';
+/** Paid orders, as JSON. See lib/orders/repository.ts. */
+export const ORDERS = 'orders';
+/**
+ * Checkout reservations, one blob per painting rather than one document for
+ * all of them: a hold has to be taken atomically against a single key, and a
+ * shared document would serialise every piece against every other.
+ */
+export const HOLDS = 'holds';
