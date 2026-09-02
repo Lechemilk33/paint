@@ -107,34 +107,16 @@ export function HeroCarousel({ paintings }: { paintings: Painting[] }) {
           aria-label={`${active.title}, ${active.year}`}
         >
           {/* A fixed square frame holds every canvas, so switching between a
-              tall piece and a wide one does not shove the page around. Each
-              canvas is contained inside it rather than cropped to fill it, and
-              a blown-up blur of the same photograph sits behind to fill what
-              the canvas does not reach - so a panorama or a tall piece lands in
-              a field of its own color instead of a slab of empty background.
-              The vibrating edge: two near-complementary strokes at identical
+              tall piece and a wide one does not shove the page around. */}
+          {/* The vibrating edge: two near-complementary strokes at identical
               value, one inset inside the other. At rest they are dim; on hover
               they come up and the boundary between them buzzes rather than
               reading as a simple highlight. */}
           <div className="border-vibrate-a/40 group-hover:border-vibrate-a bg-ink/60 relative aspect-square overflow-hidden border transition-colors duration-500">
-            {paintings.map((painting, i) => {
-              const photo = primaryPhoto(painting);
-              if (!photo) return null;
-              return (
-                <Image
-                  key={`bleed-${painting.id}`}
-                  src={photoUrl(photo)}
-                  alt=""
-                  aria-hidden="true"
-                  fill
-                  sizes="(min-width: 1024px) 42vw, 92vw"
-                  className={cn(
-                    'z-0 scale-125 object-cover blur-2xl saturate-150 transition-opacity duration-1000 ease-out',
-                    i === index ? 'opacity-60' : 'opacity-0',
-                  )}
-                />
-              );
-            })}
+            <div
+              aria-hidden="true"
+              className="border-vibrate-b/0 group-hover:border-vibrate-b/90 pointer-events-none absolute inset-[3px] z-20 border transition-colors duration-500"
+            />
             {paintings.map((painting, i) => {
               const photo = primaryPhoto(painting);
               if (!photo) return null;
@@ -149,16 +131,12 @@ export function HeroCarousel({ paintings }: { paintings: Painting[] }) {
                   sizes="(min-width: 1024px) 42vw, 92vw"
                   aria-hidden={i === index ? undefined : true}
                   className={cn(
-                    'z-10 object-contain transition-opacity duration-1000 ease-out',
+                    'object-contain transition-opacity duration-1000 ease-out',
                     i === index ? 'opacity-100' : 'opacity-0',
                   )}
                 />
               );
             })}
-            <div
-              aria-hidden="true"
-              className="border-vibrate-b/0 group-hover:border-vibrate-b/90 pointer-events-none absolute inset-[3px] z-20 border transition-colors duration-500"
-            />
           </div>
         </Link>
       </div>

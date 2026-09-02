@@ -155,9 +155,6 @@ export async function submitInquiryAction(
       title: painting.title,
       slug: painting.slug,
       priceCents: painting.priceCents,
-      // Zero unless the studio has actually priced prints of this piece; the
-      // print panel says as much either way.
-      printPriceCents: painting.printsAvailable ? painting.printPriceCents : 0,
     });
   }
 

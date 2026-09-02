@@ -43,15 +43,8 @@ export function StoreHero({
               stack as a block; Tailwind's tightest step, leading-none, is 1.
               The two words are set in near-complementary hues at close value -
               the optical-vibration trick the 1960s poster artists used, where
-              the boundary between them buzzes instead of sitting flat.
-
-              Below sm the size is tied to the viewport rather than stepped.
-              "Psychedelic" is one unbreakable word roughly nine times as wide
-              as its type size, so any fixed step wide enough to look like a
-              poster ran off the side of a phone and lost its last two letters
-              to the section's clip. min() keeps the poster size wherever it
-              fits and shrinks it only where it would not. */}
-          <h1 className="font-poster text-[min(9vw,2.75rem)] leading-[0.92] font-extrabold tracking-tight text-balance sm:text-6xl lg:text-7xl">
+              the boundary between them buzzes instead of sitting flat. */}
+          <h1 className="font-poster xs:text-5xl text-4xl leading-[0.92] font-extrabold tracking-tight text-balance sm:text-6xl lg:text-7xl">
             <span className="text-acid">Psychedelic</span>
             <br />
             <span className="text-magenta">realism</span>

@@ -5,7 +5,16 @@ import { getPaintingById } from '@/lib/paintings/repository';
 import { canBuyNow, primaryPhoto } from '@/lib/paintings/schema';
 import { CHECKOUT_WINDOW_MS, attachSession, releaseHold, takeHold } from '@/lib/orders/holds';
 import { siteOrigin, stripe, stripeConfigured } from '@/lib/stripe/client';
-import type { CheckoutState } from './checkout-state';
+
+/**
+ * What a failed checkout tells the browser. There is no success case here:
+ * success is a redirect to Stripe, which never returns.
+ */
+export interface CheckoutState {
+  error: string | null;
+}
+
+export const EMPTY_CHECKOUT_STATE: CheckoutState = { error: null };
 
 /**
  * Sends someone to Stripe to pay for one painting.

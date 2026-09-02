@@ -3,22 +3,8 @@
 # This is a server-rendered Next app: @netlify/plugin-nextjs turns the build
 # output into functions, so there is no publish directory to point at and no
 # redirect rule for `/` - app/page.tsx issues that redirect on the server.
-#
-# The build starts by throwing away Next's own cache, which Netlify otherwise
-# restores between builds. That cache is an incremental compiler cache, and it
-# carries the client-reference manifest - the map from a server component to
-# the client components it renders. Delete a client component and rebuild on
-# top of a cache that still lists it and the manifest can come out describing
-# modules the bundle no longer contains: the build passes, and then the layout
-# that lost those children fails to render at request time. That is what a
-# storefront-wide 500 looked like here, on a build that served every route
-# locally, and this is the version of "clear cache and deploy" that lives in
-# the repo rather than in someone's memory of which button to press.
-#
-# It costs a slower cold build. Worth it on a site that deploys a few times a
-# week and whose failure mode is the shop being down.
 [build]
-  command = "rm -rf .next && npm run build"
+  command = "npm run build"
 
 [build.environment]
   NODE_VERSION = "22"

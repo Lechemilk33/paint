@@ -60,10 +60,6 @@ export function StudioForm({ studio }: { studio: Studio }) {
     EMPTY_FORM_STATE,
   );
   const err = (field: string) => state.fieldErrors[field];
-  /** Values that came back from a rejected save win over the stored record:
-   *  React resets the form once the action resolves, and without the echo a
-   *  single bad field would throw away everything else that was typed. */
-  const val = (field: string, stored: string) => state.values[field] ?? stored;
 
   return (
     <form action={formAction} className="space-y-8">
@@ -79,7 +75,7 @@ export function StudioForm({ studio }: { studio: Studio }) {
       <section className="space-y-4">
         <h2 className="text-sm font-semibold">Identity</h2>
         <Field name="name" label="Studio name" hint="Shown in the header and footer." error={err('name')}>
-          <Input id="name" name="name" defaultValue={val('name', studio.name)} />
+          <Input id="name" name="name" defaultValue={studio.name} />
         </Field>
         <Field
           name="tagline"
@@ -87,7 +83,7 @@ export function StudioForm({ studio }: { studio: Studio }) {
           hint="One line under the wordmark in the footer. Leave blank for none."
           error={err('tagline')}
         >
-          <Input id="tagline" name="tagline" defaultValue={val('tagline', studio.tagline)} />
+          <Input id="tagline" name="tagline" defaultValue={studio.tagline} />
         </Field>
       </section>
 
@@ -99,7 +95,7 @@ export function StudioForm({ studio }: { studio: Studio }) {
           hint="In your own words. The About section on the store home does not appear at all until this is written."
           error={err('about')}
         >
-          <Textarea id="about" name="about" rows={6} defaultValue={val('about', studio.about)} />
+          <Textarea id="about" name="about" rows={6} defaultValue={studio.about} />
         </Field>
       </section>
 
@@ -111,7 +107,7 @@ export function StudioForm({ studio }: { studio: Studio }) {
           hint="Shown in the footer and used as the reply-to on inquiries."
           error={err('contactEmail')}
         >
-          <Input id="contactEmail" name="contactEmail" type="email" defaultValue={val('contactEmail', studio.contactEmail)} />
+          <Input id="contactEmail" name="contactEmail" type="email" defaultValue={studio.contactEmail} />
         </Field>
         <Field
           name="responseTime"
@@ -119,7 +115,7 @@ export function StudioForm({ studio }: { studio: Studio }) {
           hint='Free text, for example "within a week". Blank means the site promises nothing.'
           error={err('responseTime')}
         >
-          <Input id="responseTime" name="responseTime" defaultValue={val('responseTime', studio.responseTime)} />
+          <Input id="responseTime" name="responseTime" defaultValue={studio.responseTime} />
         </Field>
         <Field
           name="shipping"
@@ -127,7 +123,7 @@ export function StudioForm({ studio }: { studio: Studio }) {
           hint="How work actually leaves the studio. Shown on every painting that has no shipping note of its own."
           error={err('shipping')}
         >
-          <Textarea id="shipping" name="shipping" rows={3} defaultValue={val('shipping', studio.shipping)} />
+          <Textarea id="shipping" name="shipping" rows={3} defaultValue={studio.shipping} />
         </Field>
       </section>
 
@@ -143,7 +139,7 @@ export function StudioForm({ studio }: { studio: Studio }) {
             id="marquee"
             name="marquee"
             rows={5}
-            defaultValue={val('marquee', studio.marquee.join('\n'))}
+            defaultValue={studio.marquee.join('\n')}
             placeholder={'Acrylic on canvas\nOne of each'}
           />
         </Field>

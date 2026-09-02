@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useEffect, useRef } from 'react';
+import { useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -20,9 +20,9 @@ import { createPaintingAction, updatePaintingAction } from '../painting-actions'
 /**
  * One field, one label, one error slot. Written out rather than pulled from
  * react-hook-form because every field here is a plain uncontrolled input
- * posting to a server action - the one piece of cross-field behaviour, the
- * print price appearing with the print switch, is done in CSS, so a controlled
- * form library would add a hydration cost and buy nothing.
+ * posting to a server action - there is no cross-field logic, no dynamic
+ * array, and nothing to keep in sync, so a controlled form library would add a
+ * hydration cost and buy nothing.
  */
 function Field({
   name,
@@ -75,43 +75,8 @@ export function PaintingForm({ painting }: { painting?: Painting }) {
   );
   const err = (field: string) => state.fieldErrors[field];
 
-  /**
-   * What a field should fall back to.
-   *
-   * React resets the form once the action resolves, restoring every input to
-   * the default it was rendered with - so on a rejected submission the values
-   * that came back take precedence over the stored record. Without that, one
-   * bad field would empty the whole form and the typing would have to be done
-   * again.
-   */
-  const val = (field: string, stored?: string | number) =>
-    state.values[field] ?? (stored === undefined ? undefined : String(stored));
-  const checked = (field: string, stored: boolean) =>
-    Object.keys(state.values).length > 0 ? state.values[field] === 'on' : stored;
-
-  /**
-   * Selects need putting back by hand, where an input or a textarea does not.
-   *
-   * A form reset restores each control to its DOM attribute, and React writes
-   * a select's default through the element's `value` property rather than as a
-   * `selected` attribute on an option - so there is no attribute for the reset
-   * to restore and every select drops to its first option. Rendering the right
-   * default does not help: the value React would write is the value already
-   * there, so nothing is re-applied. Writing them back after the reset is what
-   * makes the edition and the availability survive a rejected submission.
-   */
-  const formRef = useRef<HTMLFormElement>(null);
-  useEffect(() => {
-    const form = formRef.current;
-    if (!form) return;
-    for (const [name, value] of Object.entries(state.values)) {
-      const field = form.elements.namedItem(name);
-      if (field instanceof HTMLSelectElement) field.value = value;
-    }
-  }, [state]);
-
   return (
-    <form ref={formRef} action={formAction} className="space-y-8">
+    <form action={formAction} className="space-y-8">
       {painting ? <input type="hidden" name="id" value={painting.id} /> : null}
 
       {state.error ? (
@@ -127,7 +92,7 @@ export function PaintingForm({ painting }: { painting?: Painting }) {
         <h2 className="text-sm font-semibold">The piece</h2>
 
         <Field name="title" label="Painting title" error={err('title')} required>
-          <Input id="title" name="title" defaultValue={val('title', painting?.title)} required />
+          <Input id="title" name="title" defaultValue={painting?.title} required />
         </Field>
 
         <div className="grid gap-4 sm:grid-cols-2">
@@ -137,7 +102,7 @@ export function PaintingForm({ painting }: { painting?: Painting }) {
               name="year"
               type="number"
               inputMode="numeric"
-              defaultValue={val('year', painting?.year)}
+              defaultValue={painting?.year}
               required
             />
           </Field>
@@ -150,7 +115,7 @@ export function PaintingForm({ painting }: { painting?: Painting }) {
             <Input
               id="series"
               name="series"
-              defaultValue={val('series', painting?.series)}
+              defaultValue={painting?.series}
               placeholder="Night Fauna"
             />
           </Field>
@@ -163,7 +128,7 @@ export function PaintingForm({ painting }: { painting?: Painting }) {
           error={err('medium')}
           required
         >
-          <Input id="medium" name="medium" defaultValue={val('medium', painting?.medium)} required />
+          <Input id="medium" name="medium" defaultValue={painting?.medium} required />
         </Field>
 
         <div className="grid gap-4 sm:grid-cols-3">
@@ -174,7 +139,7 @@ export function PaintingForm({ painting }: { painting?: Painting }) {
               type="number"
               step="0.25"
               inputMode="decimal"
-              defaultValue={val('heightIn', painting?.heightIn)}
+              defaultValue={painting?.heightIn}
               required
             />
           </Field>
@@ -185,7 +150,7 @@ export function PaintingForm({ painting }: { painting?: Painting }) {
               type="number"
               step="0.25"
               inputMode="decimal"
-              defaultValue={val('widthIn', painting?.widthIn)}
+              defaultValue={painting?.widthIn}
               required
             />
           </Field>
@@ -197,7 +162,7 @@ export function PaintingForm({ painting }: { painting?: Painting }) {
               step="0.01"
               min="0"
               inputMode="decimal"
-              defaultValue={val('priceUsd', painting ? (painting.priceCents / 100).toFixed(2) : undefined)}
+              defaultValue={painting ? (painting.priceCents / 100).toFixed(2) : undefined}
               required
             />
           </Field>
@@ -212,7 +177,7 @@ export function PaintingForm({ painting }: { painting?: Painting }) {
             <select
               id="edition"
               name="edition"
-              defaultValue={val('edition', painting?.edition ?? 'original')}
+              defaultValue={painting?.edition ?? 'original'}
               className="border-input bg-background focus-visible:border-ring focus-visible:ring-ring/50 h-9 w-full rounded-md border px-3 text-sm outline-none focus-visible:ring-[3px]"
             >
               {editionSchema.options.map((option) => (
@@ -226,7 +191,7 @@ export function PaintingForm({ painting }: { painting?: Painting }) {
             <select
               id="availability"
               name="availability"
-              defaultValue={val('availability', painting?.availability ?? 'available')}
+              defaultValue={painting?.availability ?? 'available'}
               className="border-input bg-background focus-visible:border-ring focus-visible:ring-ring/50 h-9 w-full rounded-md border px-3 text-sm outline-none focus-visible:ring-[3px]"
             >
               {availabilitySchema.options.map((option) => (
@@ -251,10 +216,7 @@ export function PaintingForm({ painting }: { painting?: Painting }) {
             step="0.01"
             min="0"
             inputMode="decimal"
-            defaultValue={val(
-              'shippingUsd',
-              painting ? (painting.shippingCents / 100).toFixed(2) : undefined,
-            )}
+            defaultValue={painting ? (painting.shippingCents / 100).toFixed(2) : undefined}
           />
         </Field>
 
@@ -269,63 +231,30 @@ export function PaintingForm({ painting }: { painting?: Painting }) {
               id="instantCheckout"
               name="instantCheckout"
               type="checkbox"
-              defaultChecked={checked('instantCheckout', painting?.instantCheckout ?? false)}
+              defaultChecked={painting?.instantCheckout ?? false}
               className="accent-primary size-4"
             />
             Let people buy this outright, by card
           </label>
         </Field>
 
-        {/* The price belongs to the switch above it, so it is revealed by that
-            checkbox rather than by React state: a CSS `has` selector cannot go
-            stale when the form comes back from a rejected submission, and it
-            works before any JavaScript has loaded. The field keeps posting
-            while hidden, so a price typed and then switched off is still there
-            when prints are switched back on. */}
-        <div className="group/prints space-y-4">
-          <Field
-            name="printsAvailable"
-            label="Prints"
-            hint="Off by default. Turn it on only for pieces you are willing and able to reproduce."
-            error={err('printsAvailable')}
-          >
-            <label className="flex items-center gap-2 text-sm">
-              <input
-                id="printsAvailable"
-                name="printsAvailable"
-                type="checkbox"
-                defaultChecked={checked('printsAvailable', painting?.printsAvailable ?? false)}
-                className="accent-primary size-4"
-              />
-              Let visitors request a print of this piece
-            </label>
-          </Field>
-
-          <div className="border-border ml-6 hidden border-l pl-4 group-has-[#printsAvailable:checked]/prints:block">
-            <Field
-              name="printPriceUsd"
-              label="Price per print (USD)"
-              hint="What one print costs, before any framing. Leave blank to quote each request by hand - the page then says the studio prices it on reply."
-              error={err('printPriceUsd')}
-            >
-              <Input
-                id="printPriceUsd"
-                name="printPriceUsd"
-                type="number"
-                step="0.01"
-                min="0"
-                inputMode="decimal"
-                placeholder="120.00"
-                defaultValue={val(
-                  'printPriceUsd',
-                  painting && painting.printPriceCents > 0
-                    ? (painting.printPriceCents / 100).toFixed(2)
-                    : undefined,
-                )}
-              />
-            </Field>
-          </div>
-        </div>
+        <Field
+          name="printsAvailable"
+          label="Prints"
+          hint="Off by default. Turn it on only for pieces you are willing and able to reproduce."
+          error={err('printsAvailable')}
+        >
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              id="printsAvailable"
+              name="printsAvailable"
+              type="checkbox"
+              defaultChecked={painting?.printsAvailable ?? false}
+              className="accent-primary size-4"
+            />
+            Let visitors request a print of this piece
+          </label>
+        </Field>
 
         <Field
           name="framingShipping"
@@ -337,7 +266,7 @@ export function PaintingForm({ painting }: { painting?: Painting }) {
             id="framingShipping"
             name="framingShipping"
             rows={2}
-            defaultValue={val('framingShipping', painting?.framingShipping)}
+            defaultValue={painting?.framingShipping}
           />
         </Field>
       </section>
@@ -351,7 +280,7 @@ export function PaintingForm({ painting }: { painting?: Painting }) {
           hint="The short line under the title. Left out of the page entirely when blank."
           error={err('blurb')}
         >
-          <Textarea id="blurb" name="blurb" rows={2} defaultValue={val('blurb', painting?.blurb)} />
+          <Textarea id="blurb" name="blurb" rows={2} defaultValue={painting?.blurb} />
         </Field>
 
         <Field
@@ -360,7 +289,7 @@ export function PaintingForm({ painting }: { painting?: Painting }) {
           hint="In your own words - how it was made, what it is. No section appears until you write one."
           error={err('story')}
         >
-          <Textarea id="story" name="story" rows={7} defaultValue={val('story', painting?.story)} />
+          <Textarea id="story" name="story" rows={7} defaultValue={painting?.story} />
         </Field>
       </section>
 
@@ -371,15 +300,11 @@ export function PaintingForm({ painting }: { painting?: Painting }) {
         </p>
 
         <Field name="driveFolder" label="Photo folder name in Drive" error={err('driveFolder')}>
-          <Input
-            id="driveFolder"
-            name="driveFolder"
-            defaultValue={val('driveFolder', painting?.driveFolder)}
-          />
+          <Input id="driveFolder" name="driveFolder" defaultValue={painting?.driveFolder} />
         </Field>
 
         <Field name="notes" label="Anything else worth knowing" error={err('notes')}>
-          <Textarea id="notes" name="notes" rows={3} defaultValue={val('notes', painting?.notes)} />
+          <Textarea id="notes" name="notes" rows={3} defaultValue={painting?.notes} />
         </Field>
       </section>
 

@@ -5,7 +5,6 @@ import {
   AVAILABILITY_LABEL,
   EDITION_LABEL,
   canBuyNow,
-  printsPriced,
   type Painting,
 } from '@/lib/paintings/schema';
 import { stripeConfigured } from '@/lib/stripe/client';
@@ -102,19 +101,6 @@ export function PaintingDetail({
             <SpecRow label="Medium" value={painting.medium} />
             <SpecRow label="Canvas" value={formatDimensions(painting)} />
             <SpecRow label="Edition" value={EDITION_LABEL[painting.edition]} />
-            {/* Only where prints are offered at all. A figure appears where the
-                studio has set one; where it has not, the row says the number
-                comes with the reply rather than inventing one. */}
-            {painting.printsAvailable ? (
-              <SpecRow
-                label="Prints"
-                value={
-                  printsPriced(painting)
-                    ? `${formatPrice(painting.printPriceCents)} each, to order`
-                    : 'To order, priced on request'
-                }
-              />
-            ) : null}
             {shipping ? <SpecRow label="Ships" value={shipping} /> : null}
           </dl>
 

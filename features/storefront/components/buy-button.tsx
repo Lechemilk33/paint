@@ -6,8 +6,10 @@ import { Loader2, ShoppingBag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { formatPrice } from '@/features/storefront/format';
 import type { Painting } from '@/lib/paintings/schema';
-import { startCheckoutAction } from '@/features/storefront/checkout-actions';
-import { EMPTY_CHECKOUT_STATE } from '@/features/storefront/checkout-state';
+import {
+  EMPTY_CHECKOUT_STATE,
+  startCheckoutAction,
+} from '@/features/storefront/checkout-actions';
 
 /**
  * Split out so it can call useFormStatus, which only reports the status of a

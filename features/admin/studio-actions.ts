@@ -4,7 +4,6 @@ import { revalidatePath } from 'next/cache';
 import { isSignedIn } from '@/lib/auth/session';
 import { getStudio, saveStudio } from '@/lib/studio/repository';
 import { studioSchema } from '@/lib/studio/schema';
-import { submittedValues } from './form-state';
 import type { FormState } from './form-state';
 
 async function requireAdmin(): Promise<void> {
@@ -39,7 +38,7 @@ export async function saveStudioAction(_prev: FormState, formData: FormData): Pr
       const field = String(issue.path[0] ?? '');
       if (field && !fieldErrors[field]) fieldErrors[field] = issue.message;
     }
-    return { error: 'Check the highlighted fields', fieldErrors, values: submittedValues(formData) };
+    return { error: 'Check the highlighted fields', fieldErrors };
   }
 
   // An address that cannot receive mail is worse than none: the storefront
@@ -49,7 +48,6 @@ export async function saveStudioAction(_prev: FormState, formData: FormData): Pr
     return {
       error: 'Check the highlighted fields',
       fieldErrors: { contactEmail: 'That does not look like an email address' },
-      values: submittedValues(formData),
     };
   }
 
@@ -58,7 +56,7 @@ export async function saveStudioAction(_prev: FormState, formData: FormData): Pr
   // The studio's words appear in the header and footer of every store page.
   revalidatePath('/store', 'layout');
   revalidatePath('/admin/studio');
-  return { error: null, fieldErrors: {}, values: {} };
+  return { error: null, fieldErrors: {} };
 }
 
 export async function currentStudio() {

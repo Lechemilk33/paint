@@ -119,12 +119,6 @@ then tick "Let people buy this outright". Everything else keeps taking
 inquiries, which is the right default for work that needs a conversation or a
 freight quote first.
 
-Buying is the first thing on every available piece's page either way. With
-checkout on it is a Buy button that goes to Stripe; with it off it is a Buy
-button that opens a short form - a name and an address to reply to - and the
-studio comes back with an invoice. Nothing about the second path takes a
-payment, and the page says so.
-
 To set it up:
 
 1. Put `STRIPE_SECRET_KEY` on the site (test key first).
@@ -172,14 +166,10 @@ Per-IP throttling on `startCheckoutAction` is where to add it.
 
 ## Notes
 
-- There is no basket. Every piece is one of one, so there is nothing to
-  collect and nothing to count: buying happens on the painting's own page,
-  where the price and the shipping are.
+- Paintings are one-of-a-kind, so the cart holds an item or does not, rather
+  than carrying a quantity. It persists to `localStorage`.
 - Every piece takes email inquiries. A piece can additionally be switched on
   for card checkout in the admin - see Payments below.
-- Prints are off per piece and priced per piece. Turning them on adds a "Price
-  per print" field; leave it blank and the storefront says the studio quotes
-  each request instead of naming a figure.
 - Uploads are rotated upright from EXIF, bounded to 2000px and re-encoded to
   WebP on the way in, so the bytes in storage are the bytes served and no
   request-time image pipeline is needed.

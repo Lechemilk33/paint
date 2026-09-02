@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useEffect, useId, useRef, useState } from 'react';
+import { useActionState, useEffect, useId, useRef } from 'react';
 import { useFormStatus } from 'react-dom';
 import Link from 'next/link';
 import { ArrowRight, Check, Send } from 'lucide-react';
@@ -9,7 +9,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
-import { formatPrice } from '@/features/storefront/format';
 import {
   BUDGET_LABEL,
   PRINT_FINISH_LABEL,
@@ -86,23 +85,20 @@ function SubmitButton({ label }: { label: string }) {
 
 /**
  * What the attached canvases are doing in this particular request. A commission
- * has none; a question is about them; a purchase buys one; a similar request
- * works from one; a print reproduces one.
+ * has none; a question or a purchase is about them; a similar request works
+ * from one; a print reproduces one.
  */
 const ATTACHED_COPY: Record<InquiryKind, { heading: (n: number) => string; note?: string }> = {
   commission: { heading: (n) => (n === 1 ? 'About this piece' : `About ${n} pieces`) },
   piece: { heading: (n) => (n === 1 ? 'About this piece' : `About ${n} pieces`) },
-  purchase: {
-    heading: (n) => (n === 1 ? 'Buying' : `Buying ${n} pieces`),
-    note: 'Nothing is charged here. The studio replies with an invoice, the shipping cost and a date, and the piece is yours once you have agreed both.',
-  },
+  purchase: { heading: (n) => (n === 1 ? 'About this piece' : `About ${n} pieces`) },
   similar: {
     heading: () => 'Working from',
     note: 'A new painting in the spirit of this one, not a copy of it. Price and timing depend on what you ask for.',
   },
   print: {
     heading: () => 'Printing',
-    note: 'A reproduction, not the original canvas, and priced separately from it.',
+    note: 'A reproduction, not the original canvas, and priced separately from it. The studio quotes it when it replies.',
   },
 };
 
@@ -110,8 +106,8 @@ const ATTACHED_COPY: Record<InquiryKind, { heading: (n: number) => string; note?
  * What the message field is actually asking for, which is not the same question
  * in each shape. A commission has nothing to look at yet. A similar request has
  * a canvas in front of it and needs to say what should change. A print request
- * and a purchase are both already described by the piece attached to them, so
- * their message is genuinely optional - see the schema.
+ * is already fully described by the fields above it, so its message is genuinely
+ * optional - see the schema.
  */
 const MESSAGE_COPY: Record<InquiryKind, { label: string; hint?: string; required: boolean }> = {
   commission: {
@@ -120,11 +116,7 @@ const MESSAGE_COPY: Record<InquiryKind, { label: string; hint?: string; required
     required: true,
   },
   piece: { label: 'Message', required: true },
-  purchase: {
-    label: 'Anything else',
-    hint: 'Only if there is something to say. A delivery deadline, a question about framing, where it is going.',
-    required: false,
-  },
+  purchase: { label: 'Message', required: true },
   similar: {
     label: 'What you would like changed',
     hint: 'Say what should carry over from the piece above and what should not - subject, palette, scale, mood.',
@@ -142,12 +134,11 @@ const MESSAGE_COPY: Record<InquiryKind, { label: string; hint?: string; required
  *
  * A commission asks for a brief, a budget and a timeframe; a request for
  * something similar asks the same, minus the brief, because the attached canvas
- * is the brief; a print asks for a size, a finish and a count, and prices them
- * where the studio has set a figure; a question or a purchase asks none of it,
- * because the piece already answers it - a purchase is a name, an address to
- * reply to, and the canvas it is for. They are one component because everything
- * else - the traps, the error handling, the value echo, the success panel - is
- * identical, and five near-copies of a form is how four of them quietly rot.
+ * is the brief; a print asks for a size, a finish and a count; a question or a
+ * purchase asks none of it, because the piece already answers it. They are one
+ * component because everything else - the traps, the error handling, the value
+ * echo, the success panel - is identical, and five near-copies of a form is how
+ * four of them quietly rot.
  *
  * The form is a plain POST to a server action, so it works before hydration and
  * keeps working if the JavaScript never arrives.
@@ -162,7 +153,7 @@ export function InquiryForm({
   kind: InquiryKind;
   paintings?: InquiryPainting[];
   submitLabel?: string;
-  /** Called once accepted, so a container can close a panel or reset itself. */
+  /** Called once accepted, so a container can clear a cart or close a panel. */
   onSent?: () => void;
   className?: string;
 }) {
@@ -171,15 +162,10 @@ export function InquiryForm({
     EMPTY_INQUIRY_STATE,
   );
   const formId = useId();
-  const formRef = useRef<HTMLFormElement>(null);
   const errorRef = useRef<HTMLDivElement>(null);
   const stampRef = useRef<HTMLInputElement>(null);
   const sentRef = useRef<HTMLDivElement>(null);
   const notified = useRef(false);
-
-  /** What a print of the attached piece costs, or zero where none is set. */
-  const printPriceCents = paintings[0]?.printPriceCents ?? 0;
-  const [printQuantity, setPrintQuantity] = useState(1);
 
   useEffect(() => {
     if (stampRef.current) stampRef.current.value = String(Date.now());
@@ -198,26 +184,6 @@ export function InquiryForm({
       onSent?.();
     }
   }, [state.status, onSent]);
-
-  /**
-   * Selects need putting back by hand where an input or a textarea does not.
-   *
-   * React resets the form once the action resolves, which restores each control
-   * to its DOM attribute - and React writes a select's default through the
-   * element's `value` property rather than as a `selected` attribute on an
-   * option, so there is nothing for the reset to restore and every select drops
-   * to its first entry. Writing the posted values back afterwards is what keeps
-   * a budget, a timeframe or a paper choice through a rejected submission.
-   */
-  useEffect(() => {
-    const form = formRef.current;
-    if (!form) return;
-    for (const [name, value] of Object.entries(state.values)) {
-      const field = form.elements.namedItem(name);
-      if (field instanceof HTMLSelectElement) field.value = value;
-    }
-    setPrintQuantity(Number(state.values.printQuantity) || 1);
-  }, [state]);
 
   const err = (field: string) => state.fieldErrors[field];
   const val = (field: string) => state.values[field] ?? '';
@@ -261,12 +227,7 @@ export function InquiryForm({
   }
 
   return (
-    <form
-      ref={formRef}
-      action={formAction}
-      className={cn('flex flex-col gap-6', className)}
-      noValidate
-    >
+    <form action={formAction} className={cn('flex flex-col gap-6', className)} noValidate>
       <input type="hidden" name="kind" value={kind} />
       <input type="hidden" name="paintings" value={JSON.stringify(paintings)} />
       {/* Stamped by the browser after mount, not during render: this component
@@ -441,40 +402,12 @@ export function InquiryForm({
               max={50}
               step={1}
               defaultValue={val('printQuantity') || '1'}
-              onChange={(event) => setPrintQuantity(Number(event.target.value) || 0)}
               required
               aria-invalid={err('printQuantity') ? true : undefined}
               aria-describedby={err('printQuantity') ? 'printQuantity-error' : undefined}
               className={FIELD_CLASS}
             />
           </Field>
-        </div>
-      ) : null}
-
-      {/* The studio's own per-print price, multiplied out as the count changes.
-          Called an estimate rather than a total because framing and postage are
-          not in it and the size has not been agreed yet - and shown at all only
-          where a price has been set, so nothing here invents a figure. */}
-      {kind === 'print' && printPriceCents > 0 ? (
-        <div className="border-voltage/30 bg-voltage/5 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 border px-4 py-3">
-          <p className="tracking-label font-mono text-xs uppercase">
-            {formatPrice(printPriceCents)} per print
-          </p>
-          <p className="font-mono text-sm tabular-nums">
-            {printQuantity > 0 ? (
-              <>
-                <span className="text-muted-foreground">
-                  {printQuantity} x {formatPrice(printPriceCents)} ={' '}
-                </span>
-                <span className="text-voltage font-semibold">
-                  {formatPrice(printPriceCents * printQuantity)}
-                </span>
-                <span className="text-muted-foreground"> before shipping</span>
-              </>
-            ) : (
-              <span className="text-muted-foreground">Enter how many prints</span>
-            )}
-          </p>
         </div>
       ) : null}
 

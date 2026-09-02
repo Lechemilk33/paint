@@ -64,13 +64,9 @@ export default async function InquiryPage({ params }: { params: Promise<{ id: st
           ? 'The piece'
           : 'The pieces';
 
-  // Snapshotted per piece, so a print request that arrived before the studio
-  // set a price still reads as unpriced however the piece is priced today.
-  const printPriceCents = inquiry.paintings[0]?.printPriceCents ?? 0;
-
   const priceCaption = (price: string) =>
     inquiry.kind === 'print'
-      ? `Original was ${price} when they asked. A print is priced separately.`
+      ? `Original was ${price} when they asked. The print is not priced.`
       : inquiry.kind === 'similar'
         ? `Reference piece, ${price} when they asked. A new painting is priced on its own.`
         : `${price} at time of inquiry`;
@@ -168,25 +164,9 @@ export default async function InquiryPage({ params }: { params: Promise<{ id: st
               </Detail>
               <Detail term="How many">{inquiry.printQuantity}</Detail>
             </dl>
-            {/* The per-print figure carried on this piece when they asked, and
-                what it multiplies out to. Shown only where one was set: with no
-                price on the piece, the storefront told them the studio would
-                quote it, and repeating a total here would invent one. */}
-            {printPriceCents > 0 ? (
-              <dl className="border-border mt-4 grid gap-4 rounded-lg border p-3 sm:grid-cols-2">
-                <Detail term="Price per print, when they asked">
-                  {priceFormatter.format(printPriceCents / 100)}
-                </Detail>
-                <Detail term="That comes to">
-                  {priceFormatter.format((printPriceCents * inquiry.printQuantity) / 100)} before
-                  shipping
-                </Detail>
-              </dl>
-            ) : null}
             <p className="text-muted-foreground mt-3 text-xs">
-              {printPriceCents > 0
-                ? 'The size is what they asked for, not what this image can be printed at, and the figure above is the list price on the piece - not a quote for this size or finish.'
-                : 'Nothing here has been quoted or promised. The size is what they asked for, not what this image can be printed at.'}
+              Nothing here has been quoted or promised. The size is what they asked for, not what
+              this image can be printed at.
             </p>
           </section>
         ) : null}
