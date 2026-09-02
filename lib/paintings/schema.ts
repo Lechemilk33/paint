@@ -50,6 +50,20 @@ export function canBuyNow(painting: Pick<Painting, 'availability' | 'instantChec
 }
 
 /**
+ * Whether a figure can be put on a print of this piece.
+ *
+ * Offering prints and pricing them are two switches, not one: a piece can be
+ * open to print requests while the studio still works each one out by hand -
+ * paper, size and framing all move the number. A price is shown where one has
+ * been set and nothing is claimed where one has not.
+ */
+export function printsPriced(
+  painting: Pick<Painting, 'printsAvailable' | 'printPriceCents'>,
+): boolean {
+  return painting.printsAvailable && painting.printPriceCents > 0;
+}
+
+/**
  * A photograph of a painting. The bytes live in blob storage under `key`; this
  * record is the metadata the app needs to lay the image out without fetching
  * it first. `position` orders the gallery, and position 0 is the piece's
@@ -132,6 +146,22 @@ export const paintingInputSchema = z.object({
    * once - so the option appears only where it has been turned on.
    */
   printsAvailable: z.boolean().default(false),
+  /**
+   * What one print of this piece costs, in cents. Only meaningful when
+   * `printsAvailable` is on.
+   *
+   * Kept separate from `priceCents` because a print is a different object from
+   * the canvas and is priced nothing like it. Zero is a real answer, not a
+   * missing one: it means the studio has not settled on a figure yet and will
+   * quote when it replies, which is how every print request behaved before
+   * this field existed.
+   */
+  printPriceCents: z
+    .number()
+    .int()
+    .nonnegative('A print cannot cost less than nothing')
+    .max(10_000_000, 'That print price looks like a typo')
+    .default(0),
   /** Studio-only. Never rendered on the public site. */
   driveFolder: z.string().trim().default(''),
   notes: z.string().trim().default(''),

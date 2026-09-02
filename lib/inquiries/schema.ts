@@ -98,6 +98,14 @@ export const inquiryPaintingSchema = z.object({
   title: z.string().min(1),
   slug: z.string().min(1),
   priceCents: z.number().int().nonnegative(),
+  /**
+   * What a print of this piece was priced at when the request came in, or zero
+   * where the studio had not set a figure. Snapshotted for the same reason the
+   * canvas price is: it is the number the sender believes they were quoted, and
+   * repricing prints later must not rewrite what was said to them. Defaulted so
+   * inquiries stored before prints carried a price still parse.
+   */
+  printPriceCents: z.number().int().nonnegative().default(0),
 });
 export type InquiryPainting = z.infer<typeof inquiryPaintingSchema>;
 
@@ -161,9 +169,12 @@ export type InquiryInput = z.infer<typeof inquiryInputSchema>;
  * that decides what a valid inquiry is.
  */
 export const inquirySubmissionSchema = inquiryInputSchema.superRefine((value, ctx) => {
-  // Every kind but a print needs words in it, because every other kind is a
-  // question the studio cannot answer from the form fields alone.
-  if (value.kind !== 'print' && value.message.length < 10) {
+  // A print and a purchase are both fully described by the piece attached to
+  // them, so their message is genuinely optional - making someone write a
+  // sentence to buy a painting is friction that loses sales and buys nothing.
+  // Every other kind is a question the studio cannot answer from the form
+  // fields alone, so it needs words in it.
+  if (value.kind !== 'print' && value.kind !== 'purchase' && value.message.length < 10) {
     ctx.addIssue({
       code: 'custom',
       path: ['message'],
@@ -180,9 +191,13 @@ export const inquirySubmissionSchema = inquiryInputSchema.superRefine((value, ct
       message: 'Say what you would like painted',
     });
   }
-  // Both of these name a specific canvas. Losing that reference would leave the
-  // studio holding a request with no idea which image it is about.
-  if ((value.kind === 'similar' || value.kind === 'print') && value.paintings.length === 0) {
+  // Each of these names a specific canvas. Losing that reference would leave
+  // the studio holding a request with no idea which piece it is about - and for
+  // a purchase, no idea what was being bought.
+  if (
+    (value.kind === 'similar' || value.kind === 'print' || value.kind === 'purchase') &&
+    value.paintings.length === 0
+  ) {
     ctx.addIssue({
       code: 'custom',
       path: ['paintings'],

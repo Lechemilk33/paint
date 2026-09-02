@@ -48,6 +48,7 @@ async function main() {
     shippingCents: 4500,
     instantCheckout: true,
     printsAvailable: false,
+    printPriceCents: 0,
     driveFolder: '',
     notes: '',
   });

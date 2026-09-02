@@ -143,6 +143,7 @@ async function main(): Promise<void> {
       shippingCents: 0,
       instantCheckout: false,
       printsAvailable: false,
+      printPriceCents: 0,
       driveFolder: '',
       notes: '',
     });

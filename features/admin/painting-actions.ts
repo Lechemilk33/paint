@@ -16,6 +16,7 @@ import {
 } from '@/lib/paintings/repository';
 import { availabilitySchema, paintingInputSchema } from '@/lib/paintings/schema';
 import type { Painting, PaintingInput } from '@/lib/paintings/schema';
+import { submittedValues } from './form-state';
 import type { FormState, UploadState } from './form-state';
 
 /**
@@ -51,6 +52,7 @@ function readForm(formData: FormData) {
   };
   const dollars = number('priceUsd');
   const shippingDollars = number('shippingUsd');
+  const printDollars = number('printPriceUsd');
 
   return {
     title: text('title'),
@@ -71,18 +73,32 @@ function readForm(formData: FormData) {
     // An unchecked box submits nothing at all, so absence is the false case.
     instantCheckout: formData.get('instantCheckout') !== null,
     printsAvailable: formData.get('printsAvailable') !== null,
+    // Blank means "not priced yet", the same as zero - the studio quotes the
+    // print when it replies. Only a figure that was actually typed is stored.
+    printPriceCents: Number.isFinite(printDollars) ? Math.round(printDollars * 100) : 0,
     driveFolder: text('driveFolder'),
     notes: text('notes'),
   };
 }
 
+/**
+ * Schema field -> the input the person actually typed in. Prices are dollars
+ * in the DOM and cents in the schema, so an error raised on the stored figure
+ * has to be walked back to the field that produced it.
+ */
+const DOM_FIELD: Record<string, string> = {
+  priceCents: 'priceUsd',
+  shippingCents: 'shippingUsd',
+  printPriceCents: 'printPriceUsd',
+};
+
 function toFieldErrors(error: z.ZodError): Record<string, string> {
   const fieldErrors: Record<string, string> = {};
   for (const issue of error.issues) {
     const key = String(issue.path[0] ?? '');
-    // The price field is `priceUsd` in the DOM but `priceCents` in the schema;
-    // map it back so the message lands on the input the person actually typed in.
-    const field = key === 'priceCents' ? 'priceUsd' : key === 'shippingCents' ? 'shippingUsd' : key;
+    // Mapped back so the message lands on the input the person actually typed
+    // in rather than on a field name only the schema knows.
+    const field = DOM_FIELD[key] ?? key;
     if (field && !fieldErrors[field]) fieldErrors[field] = issue.message;
   }
   return fieldErrors;
@@ -96,7 +112,11 @@ export async function createPaintingAction(
 
   const parsed = paintingInputSchema.safeParse(readForm(formData));
   if (!parsed.success) {
-    return { error: 'Check the highlighted fields', fieldErrors: toFieldErrors(parsed.error) };
+    return {
+      error: 'Check the highlighted fields',
+      fieldErrors: toFieldErrors(parsed.error),
+      values: submittedValues(formData),
+    };
   }
 
   const painting = await createPainting(parsed.data);
@@ -113,11 +133,15 @@ export async function updatePaintingAction(
   await requireAdmin();
 
   const id = String(formData.get('id') ?? '');
-  if (!id) return { error: 'Missing painting id', fieldErrors: {} };
+  if (!id) return { error: 'Missing painting id', fieldErrors: {}, values: {} };
 
   const parsed = paintingInputSchema.safeParse(readForm(formData));
   if (!parsed.success) {
-    return { error: 'Check the highlighted fields', fieldErrors: toFieldErrors(parsed.error) };
+    return {
+      error: 'Check the highlighted fields',
+      fieldErrors: toFieldErrors(parsed.error),
+      values: submittedValues(formData),
+    };
   }
 
   const painting = await updatePainting(id, parsed.data);
@@ -125,7 +149,9 @@ export async function updatePaintingAction(
   revalidatePath(`/admin/paintings/${id}`);
   revalidatePath('/store');
   revalidatePath(`/store/${painting.slug}`);
-  return { error: null, fieldErrors: {} };
+  // No echo on success: the page has just revalidated, so the saved record is
+  // now the right thing for every field to fall back to.
+  return { error: null, fieldErrors: {}, values: {} };
 }
 
 export async function deletePaintingAction(formData: FormData): Promise<void> {
