@@ -1,3 +1,5 @@
+'use client';
+
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { studioName, type Studio } from '@/lib/studio/schema';
@@ -15,6 +17,15 @@ const NAV = [
  * there is nothing to collect and nothing to count. Buying happens on the
  * painting's own page, where the price and the shipping are, and the header
  * stays out of the way of the work.
+ *
+ * Nothing in here is interactive any more, so `'use client'` looks redundant -
+ * it is not. Dropping it moved the button primitive, and the Radix Slot it
+ * renders for `asChild`, out of this file's client bundle and into the store
+ * layout's own server render, and that render is the one the host serves from
+ * its edge. Every /store route answered 500 there while the admin, which does
+ * not use this layout, stayed up. The directive keeps the header on the side
+ * of the boundary it has always been rendered from; the cost is a few hundred
+ * bytes of static markup hydrating.
  */
 export function StoreHeader({ studio }: { studio: Studio }) {
   return (
